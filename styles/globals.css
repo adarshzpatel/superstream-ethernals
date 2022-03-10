@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,12 +8,12 @@
     @apply min-h-screen w-full bg-gray-900 text-slate-100;
   }
   button{
-    @apply rounded-md text-white font-display font-medium px-4 py-2 duration-200 ease-out;
+    @apply rounded-xl active:scale-95  text-white font-display font-medium px-4 py-2 duration-200 ease-out flex items-center gap-1;
   }
   label{
     @apply  text-gray-200 mb-1;
   }
   input{
-    @apply px-3 py-2 rounded-md ring-2 brightness-75 hover:brightness-100 active:brightness-100 ring-opacity-50  ring-gray-500 bg-gray-900 focus-visible:bg-gray-800  hover:ring-gray-600 focus:ring-purple-500 hover:shadow-md focus-visible:shadow-xl focus-visible:outline-none transition duration-300 ease-out active:scale-[98%]
+    @apply px-3 py-2 rounded-xl ring-2    ring-opacity-50  ring-gray-500 bg-gray-800 focus-visible:bg-gray-900  hover:ring-gray-600 focus:ring-purple-500 hover:shadow-md focus-visible:shadow-xl focus-visible:outline-none transition duration-300 ease-out active:scale-[98%]
   }
 }

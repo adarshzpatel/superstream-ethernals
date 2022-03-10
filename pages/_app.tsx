@@ -1,12 +1,21 @@
 import { AppProps } from 'next/app'
 import '../styles/globals.css'
-import {store} from "../redux/store"
-import { Provider } from 'react-redux';
+import {Provider as WagmiProvider} from "wagmi";
+import {providers} from "ethers";
+import Layout from '../components/Layout';
+
+const provider = providers.getDefaultProvider(
+  "https://rpc-mumbai.maticvigil.com"
+);
 
 function MyApp({ Component, pageProps }:AppProps) {
-  return (<Provider store={store}>
-    <Component {...pageProps} />
-  </Provider>)
+  return (
+    <WagmiProvider autoConnect provider={provider}>
+      <Layout>
+      <Component {...pageProps} />
+      </Layout>
+    </WagmiProvider>
+  )
 }
 
 export default MyApp

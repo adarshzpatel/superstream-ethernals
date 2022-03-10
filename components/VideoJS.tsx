@@ -4,8 +4,7 @@ import "videojs-contrib-hls"
 import "videojs-hls-quality-selector"
 import "videojs-contrib-quality-levels";
 import "video.js/dist/video-js.css";
-import { selectStreamState } from "../redux/stream/streamSlice";
-import { useAppSelector } from "../redux/hooks";
+
 
 type Props = {
   streamIsActive:boolean,

@@ -6,7 +6,7 @@ module.exports = {
   theme: {
     fontFamily:{
         body:['IBM Plex Sans','sans-serif'],
-        display:'Poppins'
+        display:'Space Grotesk'
     },
     extend: {},
   },
