@@ -8,6 +8,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@biconomy/mexa": "^2.0.30",
     "@headlessui/react": "^1.5.0",
     "@heroicons/react": "^1.0.6",
     "@videojs/http-streaming": "^2.13.1",
@@ -18,15 +19,19 @@
     "next": "12.1.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
+    "react-hot-toast": "^2.2.0",
     "react-spinners": "^0.11.0",
+    "uid": "^2.0.0",
     "videojs-contrib-hls": "^5.15.0",
     "videojs-contrib-quality-levels": "^2.1.0",
     "videojs-hls-quality-selector": "^1.1.4",
-    "wagmi": "^0.2.17"
+    "wagmi": "^0.2.17",
+    "web3.storage": "^3.5.7"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
+    "@openzeppelin/contracts": "^4.5.0",
     "@types/node": "^17.0.21",
     "@types/react": "^17.0.39",
     "autoprefixer": "^10.4.2",
@@ -34,7 +39,7 @@
     "eslint": "8.10.0",
     "eslint-config-next": "12.1.0",
     "ethereum-waffle": "^3.4.0",
-    "ethers": "^5.5.4",
+    "ethers": "^5.6.0",
     "hardhat": "^2.9.1",
     "postcss": "^8.4.7",
     "tailwindcss": "^3.0.23",

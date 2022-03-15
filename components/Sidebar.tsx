@@ -22,7 +22,7 @@ const Sidebar = (props: Props) => {
       <ul className=' flex flex-col gap-4 text-lg font-display'>
         {SIDEBAR_ITEMS.map((item)=>(
           <Link key={item.href} href={item.href}>
-            <a className={'hover:bg-gray-800 px-4 py-2 rounded-xl duration-100 ease-out ' + (router.pathname == item.href && 'bg-gray-800 text-purple-300 ') }> 
+            <a className={'hover:bg-gray-800 px-4 py-2 rounded-xl duration-100 ease-out ' + (router.pathname == item.href && 'bg-gray-800 text-violet-400 ') }> 
             {item.name}
             </a>
             </Link>

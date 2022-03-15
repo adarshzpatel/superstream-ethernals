@@ -13,7 +13,7 @@
   label{
     @apply  text-gray-200 mb-1;
   }
-  input{
+  input,textarea{
     @apply px-3 py-2 rounded-xl ring-2    ring-opacity-50  ring-gray-500 bg-gray-800 focus-visible:bg-gray-900  hover:ring-gray-600 focus:ring-purple-500 hover:shadow-md focus-visible:shadow-xl focus-visible:outline-none transition duration-300 ease-out active:scale-[98%]
   }
 }

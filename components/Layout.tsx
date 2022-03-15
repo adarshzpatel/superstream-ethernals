@@ -1,4 +1,5 @@
 import React from 'react'
+import useSuperstreamContract from '../hooks/useSuperstreamContract'
 import Header from './Header'
 import Sidebar from './Sidebar'
 
