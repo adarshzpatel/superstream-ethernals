@@ -8,22 +8,17 @@ type Props = {
   copyText?:string
 }
 
-const notify = () => toast.success("Copied to Clipboard",{
-  style: {
-    borderRadius: '10px',
-    background: '#374151',
-    color: '#fff',
-  },
-})
+const notify = () => toast.success("Copied to Clipboard")
 
 const Copyable = (props: Props) => {
   const copyToClipboard = () => {
-    window.navigator.clipboard.writeText(props.copyText);
+    window.navigator.clipboard.writeText(props.copyText || props.text);
     notify();
   }
 
   return (
-    <span onClick={copyToClipboard} className='group cursor-pointer flex items-center gap-2'>
+    <span onClick={copyToClipboard} className='relative max-w-fit  group cursor-pointer  flex items-center gap-2'>
+
       {props.text}
       <DuplicateIcon className="h-6 w-6 group-active:scale-95"/>
     </span>

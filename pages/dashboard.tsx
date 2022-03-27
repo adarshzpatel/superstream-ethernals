@@ -1,66 +1,67 @@
-import React from 'react'
-import { useAccount } from 'wagmi'
-import Loader from "react-spinners/BeatLoader"
-import { PlusIcon } from '@heroicons/react/outline'
-import CreateStream from '../components/CreateStream'
-import useSuperstreamContract from '../hooks/useSuperstreamContract'
-import Copyable from '../components/Copyable'
-import { ethers } from 'ethers'
-import useLivpeerApi from '../hooks/useLivepeerApi'
-type Props = {}
+import { NextPage } from "next";
+import React, { useEffect, useState } from "react";
+import { useRecoilValue } from "recoil";
+import SessionDetails from "../components/dashboard/SessionDetails";
 
-type Stream = {
-  id:string
-  name:string,
-  streamId:string,
-  isActive:boolean,
-  views:number;
-}
+import StreamDetails from "../components/dashboard/StreamDetails";
+import useLivpeerApi from "../hooks/useLivepeerApi";
+import useSuperstreamContract from "../hooks/useSuperstreamContract";
+import { currentUserState } from "../recoil/states";
 
+type Props = {};
 
-const dashboard = (props: Props) => {
-  const [streams,setStreams] =  React.useState({});
-  const [isCreateModalOpen,setIsCreateModalOpen] = React.useState(false);
-  const [{data:accountData,error:accountError,loading:accountLoading}] = useAccount();
-  const contract = useSuperstreamContract();
+const dashboard: NextPage = (props: Props) => {
+  const currentUser = useRecoilValue(currentUserState);
+  const [streamId, setStreamId] = useState<string>();
+  const [streamStatus, setStreamStatus] = useState<any>({});
+  const superstream = useSuperstreamContract();
   const livepeer = useLivpeerApi();
-  const handleCreateStream = () => {
-    setIsCreateModalOpen(true);
-  }
 
-  const getAllStreams = async (_address:string) => {
-    try{
-      let _streams:Stream[] = [];
-      console.log("Fetching streams for " + _address);
-      const streams = await contract.getAllStreams(_address);
-       streams.map(async (item) => {
-        const {id,streamId,views} = item;
-        const streamStatus:any = await livepeer.fetchStreamStatus(streamId);
-        _streams.push({id,streamId,views,isActive:streamStatus.isActive,name:streamStatus.name})
-      });
-      console.log(_streams);
-    } catch(err) {
-      console.log(err);
+  const fetchStreamId = async () => {
+    const _streamId = await superstream.getStreamId(currentUser.data.name);
+    setStreamId(_streamId);
+    console.log({_streamId});
+  };
+
+ 
+
+  const fetchStream = async () => {
+    const _status = await livepeer.fetchStreamStatus(streamId);
+    console.log({_status});
+    setStreamStatus(_status);
+  };
+
+  useEffect(() => {
+    if (currentUser?.data?.name) {
+      fetchStreamId();
     }
-  }
+  }, [currentUser]);
 
-  React.useEffect(()=>{
-    console.log("heelo")
-    if(accountData?.address){
-      getAllStreams(accountData?.address);
+  useEffect(() => {
+    if (streamId) {
+      setInterval(()=>{
+        fetchStream();
+      },20000)
+      
     }
-  },[accountData]);
-
+  }, [streamId]);
 
   return (
-    <div>
-      <h1 className='text-2xl mb-4 font-display font-bold '>My Streams</h1>
-      <p className='flex gap-2'>Server : <Copyable text='rtmp.livepeer.com/live'/></p>
-  
-      <button onClick={handleCreateStream} className='bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600'><PlusIcon className='h-5 w-5'/> Create Stream</button>
-      <CreateStream isOpen={isCreateModalOpen} setIsOpen={setIsCreateModalOpen}/>
-    </div>
-  )
-}
+    <div className="lg:px-4">
+      <h1 className="text-3xl  font-display">Dashboard  </h1>
+      <hr className="border-gray-600 my-4" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
-export default dashboard
+      <StreamDetails
+      username={currentUser?.data?.name}
+      status={streamStatus?.isActive}
+      streamKey={streamStatus?.streamKey}
+      lastSeen={streamStatus?.lastSeen}
+      />
+      {/* <hr className="border-gray-600 my-4" /> */}
+      <SessionDetails streamId={streamId} />
+      </div>
+    </div>
+  );
+};
+export default dashboard;

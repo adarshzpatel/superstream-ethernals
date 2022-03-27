@@ -1,95 +1,64 @@
-import { PhotographIcon } from "@heroicons/react/outline";
-import { chownSync } from "fs";
-import React, { FormEventHandler, useState } from "react";
-import { Web3Storage } from "web3.storage";
+import { useNFTCollection } from "@thirdweb-dev/react";
+import React, { useEffect, useState } from "react";
+import VideoCard from "../components/VideoCard";
+import { STREAM_NFT_ADDRESS } from "../constants";
+import useSuperstreamContract from "../hooks/useSuperstreamContract";
+import BigNumber, { ethers } from "ethers";
+import { useRecoilState } from "recoil";
+import { videosListState } from "../recoil/states";
+import { id } from "ethers/lib/utils";
 
-type Props = {
-  web3storageToken:string
-};
+const Home = () => {
+  const [videos, setVideos] = useRecoilState(videosListState);
+  const videoNFTCollection = useNFTCollection(STREAM_NFT_ADDRESS);
+  const superstream = useSuperstreamContract();
 
-export async function getServerSideProps(){
-  const token = process.env.WEB_STORAGE_ACCESS_TOKEN;
-  return {
-    props: {
-      web3storageToken:token
+  const fetchVideos = async () => {
+    try {
+      const _videoNFTs = await videoNFTCollection.getAll();
+      setVideos(_videoNFTs);
+      console.log(videos);
+    } catch (err) {
+      console.log(err);
     }
-  }
-}
+  };
 
-const Home = (props: Props) => {
-  const filePickerRef = React.useRef<HTMLInputElement>();
-  const [selectedFile,setSelectedFile] = useState<any>();
-
-  const handleFileChange = async (e) => {
-    const file = filePickerRef.current.files[0];
-    const fileTypes = ["image/jpeg", "image/jpg", "image/png"];
-    const { size, type } = file;
-    // Limit to either image/jpeg, image/jpg or image/png file
-    if (!fileTypes.includes(type)) {
-        console.error("File format must be either png or jpg");
-        return false;
-    }
-    // Check file size to ensure it is less than 2MB.
-    if (size / 1024 / 1024 > 2) {
-        console.error("File size exceeded the limit of 2MB");
-        return false;
-    }
-    // const reader = new FileReader();
-    // if(e.target.files[0]){
-    //   reader.readAsDataURL(e.target.files[0]);
-    // }
-
-    // reader.onload = (readerEvent) => {
-    //   setSelectedFile(readerEvent.target.result);
-    //   storeFile(readerEvent.target.result);
-
-    const cid = await storeFile(filePickerRef.current.files[0])
-    await retrieveFile(cid);
-    
-  }
-
-  const makeStorageClient = () => {
-
-    return new Web3Storage({token:props.web3storageToken})
-  }
-  const storeFile = async (file:File) =>{
-    console.log("inside store file")
-    try{
-      const client = makeStorageClient();
-      
-      const cid = await client.put([file]);
-      console.log("stored thumbnail with cid : ", cid)
-      return cid;
-    }catch(err){
-      console.error(err);
-    }
-  }
-
-  const retrieveFile = async (cid:string) => {
-    const client = makeStorageClient();
-    const res = await client.get(cid);
-    console.log(`Got a response! [${res.status}] ${res.statusText}` )
-    if(!res.ok){
-      throw new Error(`Failed to get ${cid} - [${res.status}] ${res.statusText}`)
-    }
-    const file = await res.files()
-    console.log(file);
-    
-  }
-
+  useEffect(() => {
+    fetchVideos();
+  }, []);
   return (
-    <div>
-      <div>
-        <input onChange={handleFileChange} type="file" hidden ref={filePickerRef}/>
-        <button onClick={() => filePickerRef.current.click()} className="bg-gray-800 text-gray-400 group hover:text-gray-300"> 
-        <PhotographIcon  className="h-5 w-5 group-hover:scale-110 group-hover:rotate-6"/>
-        Upload image </button>
-        {selectedFile && (
-          <img src={selectedFile} className='w-40  mt-4 h-32 object-contain object-center' onClick={()=>setSelectedFile(null)} alt=''/>
-        )}
+    <div className="p-4">
+      <div className=" flex  p-8  ease-out duration-500 items-center w-full bg-gradient-to-br rounded-2xl from-violet-800 via-purple-600  to-fuchsia-400">
+        <div className="md:w-1/2 flex flex-col">
+          <h1 className="text-4xl  font-display mb-2 font-bold">
+            Welcome to Superstream ⚡
+          </h1>
+          <p className="text-violet-200 text-xl">
+            {" "}
+            A decentralized live streaming platform
+          </p>
+        </div>
+        <div className="w-1/2 h-full border-l-2 -skew-x-12 px-12 font-display   border-white">
+          <div className="md:flex hidden flex-col gap-2  justify-center">
+            <p> 🔴 Live Stream</p>
+            <p> 📢 Publish / Mint Stream NFT </p>
+            <p> ✨ Follow your favorite streamers </p>
+            <p> 💰 Receive Tips </p>
+            <p> 🎫 Subscriptions ( Coming soon !) </p>
+            <p> 📨 Super Chat ( Coming soon !) </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8  gap-4 grid sm:grid-cols-2 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 ">
+        <div>
+          {videos.map((item) => (
+            <VideoCard key={item.nftId} data={item}/>
+          ))}
+        </div>
       </div>
     </div>
-  )
+  );
 };
 
 export default Home;

@@ -1,186 +1,123 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-
 contract Superstream {
     address owner;
-    
+
     constructor() {
-      owner = msg.sender;
+        owner = msg.sender;
     }
 
-    struct Comment {
+    // Superchat & Tip
+    event ProfileCreated(string username,uint id,address owner);
+    event StreamPublished(uint streamNftId,address indexed creator);
+    event Liked(uint senderId,uint indexed streamId);
+    event Followed(string indexed _from,string indexed _to);
+    event Tipped(address indexed sender,address indexed receiver,uint amount);
+
+    struct Stream {
+        string sessionId;
+        uint[] likes; // array of profileIds who have liked
+        uint views;
+    }
+
+    struct Profile {
+        uint id;
+        uint[] follows;
+        uint[] followers;
         string username;
-        string message;
-        uint256 createdAt;
-    }
-
-    struct User {
-        string username;
-        string[] followers; // usernames array
-        string[] follows; // username array
-        string[] liked; // livestream id array
-        address userAddress;
-    }
-
-    struct Livestream {
-        string name;
-        string description;
-        string thumbnailCid;
         string streamId;
-        uint256 likes;
-        uint256 views;
-        address creator;
+        string streamKey;
+        string defaultTitle;
+        string defaultThumbnail;
+        address owner;
     }
 
-    //Events 
-    event NewStreamCreated(address indexed creator,string _id);
-    event NewUserCreated(string username);
-    event StreamLiked(string id,address by);
-    event Followed(address from,string to);
-    event Tipped(address tipper,uint256 amount,string receiver);
-    event CommentAdded(Comment comment);
-
-    Livestream[] livestreams;
-    User[] users;
-
-    mapping(string => string) private idToStreamKeys;
-    mapping(string => uint256) private idToStreamIndex;
-    mapping(address => uint256) addressToUserIndex;
-    mapping(string => uint256) usernameToUserIndex;
-    mapping(string => bool) public userExists;
-    mapping(address => bool) public addressHasAccount;
-    mapping(address => uint256) tipsReceived;
-    mapping(address => uint256) totalTipped;
-    mapping(address => mapping(string => bool)) userHasLiked; // address -> id -> true / false
-    mapping(string => Comment[]) private commentsByStream;
-    mapping(string => Livestream[]) private livestreamsByUsername;
-    //modifiers 
-    modifier onlyOwner() {
-        require(msg.sender == owner,"Only owner can access this function");
-        _;
+    mapping(uint => Stream) streams;   // Stream NFT ID to stream 
+    mapping(string => Profile) private profiles; // username NFT ID to profile
+    mapping(string => bool) public usernameTaken;
+    mapping(string => bool) public isPublished;
+    
+    function addStream(uint _streamNftId,string memory _sessionId) public {
+        Stream memory newStream;
+        newStream.sessionId = _sessionId;
+        streams[_streamNftId] = newStream;
+        isPublished[_sessionId] = true;
+        emit StreamPublished(_streamNftId, msg.sender);
     }
 
-    //user functions
-    function createUser(string memory _username) public {
-        require(!addressHasAccount[msg.sender],"You already have an account");
-        require(!userExists[_username],"This username is already taken!");     
-        User memory newUser;
-        newUser.username = _username;
-        newUser.userAddress = msg.sender;
-        uint256 index = users.length;
-        users.push(newUser);
-        addressToUserIndex[msg.sender] = index;
-        usernameToUserIndex[_username] = index;
-        userExists[_username] = true;
-        addressHasAccount[msg.sender] = true;
-        emit NewUserCreated(_username);
+    function like(uint _senderId,uint _sessionId) public returns(uint) {
+        streams[_sessionId].likes.push(_senderId);
+        emit Liked(_senderId, _sessionId); 
+        return streams[_sessionId].likes.length;       
     }
 
-    function getUserByAddress(address _userAddress) public view returns (User memory){
-        require(addressHasAccount[_userAddress],"Account does not exist!");
-        return users[addressToUserIndex[_userAddress]];
+    function follow(string memory _from,string memory _to) public {
+        uint _from_pid = profiles[_from].id;
+        uint _to_pid = profiles[_to].id;
+        profiles[_from].follows.push(_to_pid);
+        profiles[_to].followers.push(_from_pid);
+        emit Followed(_from, _to);
     }
 
-    function getUserByUsername(string memory _username) public view returns (User memory){
-        require(userExists[_username],"Account does not exist");
-        return users[usernameToUserIndex[_username]];
+    function addProfile(uint _profileId,string memory _username,string memory _streamId,string memory _streamKey)public{
+        require(!usernameTaken[_username],"Username is Already Taken!");
+        Profile memory newProfile;
+        newProfile.id = _profileId;
+        newProfile.username = _username;
+        newProfile.streamId = _streamId;
+        newProfile.streamKey = _streamKey;
+        newProfile.defaultThumbnail = '';
+        newProfile.defaultTitle = "Default Stream Title";
+        profiles[_username] = newProfile;
+        usernameTaken[_username] = true;
+        emit ProfileCreated(_username, _profileId, msg.sender);
     }
 
-    function getAllUsers() public view returns (User[] memory) {
-        return users;
+    function getProfileId(string memory _username) public view returns(uint) {
+        require(usernameTaken[_username],"Username does not exist");
+        return profiles[_username].id;
     }
 
-    function follow(string memory _username) public {
-        // updating follower account
-        users[addressToUserIndex[msg.sender]].follows.push(_username);
-        // updating followed account
-        users[usernameToUserIndex[_username]].followers.push(_username);
-        emit Followed(msg.sender, _username);
+    function getStreamId(string memory _username) public view returns(string memory){
+        require(usernameTaken[_username],"Username does not exist");
+        return profiles[_username].streamId;
+    }
+    
+    function getStreamKey(string memory _username) public view returns(string memory){
+        require(msg.sender == profiles[_username].owner,"Unauthorized");
+        return profiles[_username].streamKey;
     }
 
-    //Livestream Functions
-    function createStream(string memory _id,string memory _name,string memory _description,string memory _thumbnailCid, string memory _streamId,string memory _streamKey) public {
-        Livestream memory newStream;
-        newStream.streamId = _streamId;
-        newStream.creator = msg.sender;
-        newStream.name = _name;
-        newStream.thumbnailCid = _thumbnailCid;
-        newStream.description = _description;
-        uint256 index = livestreams.length;
-        livestreams.push(newStream);
-        idToStreamIndex[_id] = index;
-        idToStreamKeys[_id] = _streamKey;
-
-        string memory _username = getUserByAddress(msg.sender).username;
-        livestreamsByUsername[_username].push(newStream);
-
-        emit NewStreamCreated(msg.sender, _id);
+    function getFollowData(string memory _username) public view returns(uint[] memory,uint[] memory){
+        return (profiles[_username].follows,profiles[_username].followers);
     }
 
-    function getStreams(string calldata _username) public view returns(Livestream[] memory){
-        return livestreamsByUsername[_username];
+    function getStreamInfo(string memory _username) public view returns (string memory,string memory){
+        return (profiles[_username].defaultThumbnail,profiles[_username].defaultTitle);
     }
 
-    function getAllStreams() public view returns(Livestream[] memory) {
-        return livestreams;
-    } 
-
-    function getLivestreamById(string memory _id) public view returns (Livestream memory){
-        return livestreams[idToStreamIndex[_id]];
+    function getSessionId(uint _id) public view returns(string memory){
+        return (streams[_id].sessionId);
     }
 
-    function getStreamKey(string memory _id) public view returns (string memory){
-      require(msg.sender == livestreams[idToStreamIndex[_id]].creator,"Unauthorized Access");
-      return idToStreamKeys[_id];
+    function getSessionData(uint _id) public view returns(Stream memory) {
+        return streams[_id];
+    }
+    function getSessionWithViewIncrement(uint _id) public returns(Stream memory) {
+        streams[_id].views++;
+        return streams[_id];
     }
 
-    function like(string memory _id) public {
-      require(!userHasLiked[msg.sender][_id],"You have already liked the video");
-      users[addressToUserIndex[msg.sender]].liked.push(_id);
-      livestreams[idToStreamIndex[_id]].likes++;
-      userHasLiked[msg.sender][_id] = true;
-      emit StreamLiked(_id, msg.sender);
+    function updateDefaultStreamInfo(string memory _username,string memory _title,string memory _thumbnail) public returns(string memory,string memory){
+        profiles[_username].defaultTitle = _title;
+        profiles[_username].defaultThumbnail = _thumbnail;
+        return (profiles[_username].defaultTitle,profiles[_username].defaultThumbnail);
     }
 
-    function tip(string memory _username) public payable {
-        require(msg.value > 0, "Tip amount cannot be 0 or negative");
-        require(userExists[_username], "User does not exist");
-
-        // Transfering 90% of the tip amount to the creator - Rest 10% commission goes to superstream ;
-        uint256 _amount = (msg.value * 9) / 10;
-        address payable _receiver = payable(
-            users[usernameToUserIndex[_username]].userAddress
-        );
-        (bool success, ) = _receiver.call{value: _amount}("");
-        require(success, "Failed to tip the user");
-        emit Tipped(msg.sender, msg.value,_username);
-    }
-
-    function withdraw() payable public onlyOwner {
-      require(msg.sender == owner,"Only the onwer can access");
-      (bool success,) = payable(owner).call{value:address(this).balance}("");
-      require(success,"Failed to withdraw funds");
-    }
-
-    function getBalance() public view returns(uint) {
-      require(msg.sender == owner ,"Only the owner can call this function");
-      return address(this).balance;
-    }
-
-    function getComments(string calldata _stream) public view returns(Comment[] memory){
-        return commentsByStream[_stream];
-    }
-
-    function addComment(string calldata _stream,string calldata _message) public {
-        require(users[addressToUserIndex[msg.sender]].userAddress == msg.sender,"Unauthorized");
-        string memory _username = getUserByAddress(msg.sender).username;
-        Comment memory comment = Comment({
-            username:_username,
-            message:_message,
-            createdAt:block.timestamp
-        });
-        commentsByStream[_stream].push(comment);
-        emit CommentAdded(comment);
+    function tip(address receiver,uint _amount) payable public {
+        (bool success,) = payable(receiver).call{value:_amount}("");
+        require(success == true,"Failed to send Tip");
+        emit Tipped(msg.sender,receiver,_amount);
     }
 }

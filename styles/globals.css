@@ -8,12 +8,13 @@
     @apply min-h-screen w-full bg-gray-900 text-slate-100;
   }
   button{
-    @apply rounded-xl active:scale-95  text-white font-display font-medium px-4 py-2 duration-200 ease-out flex items-center gap-1;
+    @apply rounded-lg active:scale-95  text-white font-display font-medium px-3 py-1 duration-200 ease-out flex items-center gap-1;
   }
   label{
     @apply  text-gray-200 mb-1;
   }
-  input,textarea{
-    @apply px-3 py-2 rounded-xl ring-2    ring-opacity-50  ring-gray-500 bg-gray-800 focus-visible:bg-gray-900  hover:ring-gray-600 focus:ring-purple-500 hover:shadow-md focus-visible:shadow-xl focus-visible:outline-none transition duration-300 ease-out active:scale-[98%]
+  input[type='text'],input[type='number'],textarea {
+    @apply px-3 py-2 rounded-xl ring-1    ring-opacity-75  ring-slate-500 bg-opacity-50 bg-slate-800 focus-visible:bg-gray-900  hover:ring-gray-500 focus:ring-violet-500 hover:shadow-md focus-visible:shadow-xl focus-visible:outline-none transition duration-300 ease-out active:scale-[98%];
   }
+
 }

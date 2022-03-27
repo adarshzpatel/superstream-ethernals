@@ -1,6 +1,5 @@
-
-import axios from 'axios';
-
+import axios from "axios";
+import toast from "react-hot-toast";
 
 export const PROFILES = [
   {
@@ -35,34 +34,59 @@ export const PROFILES = [
 
 const useLivpeerApi = () => {
   const apiKey = process.env.NEXT_PUBLIC_LIVEPEER_API_KEY;
-
-  const createStream = async(name:string):Promise<object> => {
-    const url = "https://livepeer.com/api/stream";
-    const data = {
-      name: name,
-      profiles: PROFILES,
-    };
-    const headers = {
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${apiKey}`,
-      },
-    };
-    return await axios.post(url, data, headers);
-  }
-  
-    const fetchStreamStatus = async (streamId:string):Promise<object> => {
-    const url = `https://livepeer.com/api/stream/${streamId}`;
-    const headers = {
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${apiKey}`,
-      },
-    };
-    const response = await axios.get(url, headers);
-    return response?.data;
+  const headers = {
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${apiKey}`,
+    },
   };
-  
-  return {createStream,fetchStreamStatus};
-}
+
+  const createStream = async (name: string): Promise<object> => {
+    try {
+      const url = "https://livepeer.com/api/stream";
+      const data = {
+        name: name,
+        profiles: PROFILES,
+        record: true,
+      };
+    
+      return await axios.post(url, data, headers);
+    } catch (err) {
+      console.error(err);    
+    }
+  };
+
+  const fetchStreamStatus = async (streamId: string): Promise<object> => {
+    try{
+      const url = `https://livepeer.com/api/stream/${streamId}`;
+      const response = await axios.get(url, headers);
+      return response?.data;
+    } catch(err) {
+      console.error(err);
+    }
+  };
+
+  const getSessionsList = async (parentId: string): Promise<any> => {
+    try{
+      const url = `https://livepeer.com/api/stream/${parentId}/sessions?record=1`
+      const response = await axios.get(url,headers);
+      return response?.data;
+    } catch(err) {
+      console.error(err);
+    }
+  };
+
+  const getSession = async (id: string | string[]): Promise<any> => {
+    try{
+      const url = `https://livepeer.com/api/session/${id}`;
+      const response = await axios.get(url,headers);
+      return response?.data;
+    } catch(err) {
+      console.error(err);
+    }
+  };
+
+
+  return { createStream, fetchStreamStatus,getSession,getSessionsList };
+};
 export default useLivpeerApi;

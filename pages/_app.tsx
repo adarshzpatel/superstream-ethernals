@@ -1,23 +1,21 @@
-import { AppProps } from 'next/app'
-import '../styles/globals.css'
-import {Provider as WagmiProvider} from "wagmi";
-import {providers} from "ethers";
-import Layout from '../components/Layout';
-import { Toaster } from 'react-hot-toast';
+import { AppProps } from "next/app";
+import "../styles/globals.css";
+import Layout from "../components/layout/Layout";
+import { Toaster } from "react-hot-toast";
+import { ChainId, ThirdwebProvider } from "@thirdweb-dev/react";
+import { RecoilRoot } from "recoil";
 
-const provider = providers.getDefaultProvider(
-  "https://rpc-mumbai.maticvigil.com"
-);
-
-function MyApp({ Component, pageProps }:AppProps) {
+function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <WagmiProvider autoConnect provider={provider}>
-        <Toaster position='bottom-right'/>
+    <ThirdwebProvider desiredChainId={ChainId.Mumbai}>
+        <RecoilRoot>
         <Layout>
-        <Component {...pageProps} />
-       </Layout>
-    </WagmiProvider>
-  )
+          <Toaster position="bottom-right" />
+          <Component {...pageProps} />
+        </Layout>
+    </RecoilRoot>
+      </ThirdwebProvider>
+  );
 }
 
-export default MyApp
+export default MyApp;
