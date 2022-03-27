@@ -10,7 +10,10 @@ import Link from "next/link";
 
 const Header = ()=> {
   const currentUserAddress = useAddress();
+
   const currentUser = useRecoilValue(currentUserState);
+
+
   return (
     <>
       <header className="sticky z-10  bg-gray-900 top-0 left-0 border-b border-gray-700">
@@ -22,8 +25,7 @@ const Header = ()=> {
               <button className="bg-violet-600 hover:bg-violet-500">Create Profile</button>
             </Link>
           )}
-          {!currentUserAddress || !currentUser.data && <ConnectMetamask/>}
-          {currentUserAddress || currentUser.data && <UserMenu/>}
+          {!currentUserAddress && !currentUser.data ? <ConnectMetamask/> : <UserMenu />  }
           </div>
         </nav>
       </header>

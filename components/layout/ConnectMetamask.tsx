@@ -5,7 +5,7 @@ type Props = {}
 
 const ConnectMetamask = (props: Props) => {
   const connect = useMetamask();
-  
+
   return (
     <button onClick={connect} className='bg-violet-600 hover:bg-violet-500'>ConnectMetamask</button>
   )

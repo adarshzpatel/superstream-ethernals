@@ -2,9 +2,9 @@ import { useAddress, useNFTCollection } from '@thirdweb-dev/react'
 import { NFTMetadataOwner } from '@thirdweb-dev/sdk'
 import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil'
-import { PROFILE_NFT_ADDRESS } from '../../constants'
+import { PROFILE_NFT_ADDRESS, STREAM_NFT_ADDRESS } from '../../constants'
 import useSuperstreamContract from '../../hooks/useSuperstreamContract'
-import { currentUserState } from '../../recoil/states'
+import { currentUserState, videosListState } from '../../recoil/states'
 import Header from './Header'
 
 import Sidebar from './Sidebar'
@@ -18,6 +18,8 @@ const Layout = ({children}: Props) => {
   const currentUserAddress = useAddress();
   const profileNFT = useNFTCollection(PROFILE_NFT_ADDRESS);
   const superstream = useSuperstreamContract();
+  const [videos, setVideos] = useRecoilState(videosListState);
+  const videoNFTCollection = useNFTCollection(STREAM_NFT_ADDRESS);
 
   const checkIfUserHasProfile = async ():Promise<void> => {
     try{
@@ -45,12 +47,25 @@ const Layout = ({children}: Props) => {
     }
   },[currentUserAddress]);
   
+  const fetchVideos = async () => {
+    try {
+      const _videoNFTs = await videoNFTCollection.getAll();
+      setVideos(_videoNFTs);
+      console.log(videos);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
+  useEffect(() => {
+    fetchVideos();
+  }, []);
+  
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <Sidebar/>
-      <div className='w-full flex h-full '>
+      <div className='w-full flex  '>
         <div className='p-4 pl-20 flex-1'>
       {children}
         </div>

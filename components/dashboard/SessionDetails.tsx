@@ -31,15 +31,12 @@ type PublishedSession = {
 };
 
 const SessionDetails = ({ streamId }: Props) => {
-  const [sessions, setSessions] = useState<Session[]>();
+  const [sessions, setSessions] = useState<Session[]>([]);
   const livepeer = useLivpeerApi();
   const superstream = useSuperstreamContract();
   const sessionNft = useNFTCollection(STREAM_NFT_ADDRESS);
   const currentAccount = useAddress();
   const [sessionsLoading, setSessionsLoading] = useState<boolean>(true);
-
-  
-
 
   const getSessions = async () => {
     setSessionsLoading(true);
@@ -47,12 +44,15 @@ const SessionDetails = ({ streamId }: Props) => {
     let _sessions = await livepeer.getSessionsList(streamId);
     _sessions.map(async (item) => {
       const isPublished = await checkIfAlreadyPublished(item.id);
-      setSessions([...sessions,{
-        createdAt: item.createdAt,
-        duration: item.sourceSegmentsDuration,
-        id: item.id,
-        status: isPublished ? "Published" : "Unpublished",
-      }]);
+      setSessions((sessions) => [
+        ...sessions,
+        {
+          createdAt: item.createdAt,
+          duration: item.sourceSegmentsDuration,
+          id: item.id,
+          status: isPublished ? "Published" : "Unpublished",
+        },
+      ]);
     });
     setSessionsLoading(false);
   };
@@ -79,7 +79,7 @@ const SessionDetails = ({ streamId }: Props) => {
         {!sessionsLoading ? (
           <table className="w-full text-left rounded-md overflow-hidden ring-1 ring-gray-600 ">
             <tbody className="divide-y divide-gray-600">
-            <tr className="text-gray-300  font-display font-normal bg-slate-800 ">
+              <tr className="text-gray-300  font-display font-normal bg-slate-800 ">
                 <th className="p-2 px-4">Streamed At</th>
                 <th className="p-2 px-4 text-center">Duration</th>
                 <th className="p-2 px-4 text-center">Status</th>
@@ -95,11 +95,7 @@ const SessionDetails = ({ streamId }: Props) => {
                     </td>
                     <td className="p-2 px-4 text-center">
                       {moment
-                        .duration(
-                          Math.ceil(session?.duration / 60) *
-                            60 *
-                            1000
-                        )
+                        .duration(Math.ceil(session?.duration / 60) * 60 * 1000)
                         .humanize()}
                     </td>
                     <td className="p-2 px-4 text-center">{session.status}</td>
@@ -116,12 +112,12 @@ const SessionDetails = ({ streamId }: Props) => {
                 ))}
             </tbody>
           </table>
-        ):(<div className="w-full animate-pulse flex justify-center">
-        {/* <BeatLoader color="#fff" /> */}
-        Loading...
-            </div>
-            )}
-    
+        ) : (
+          <div className="w-full animate-pulse flex justify-center">
+            {/* <BeatLoader color="#fff" /> */}
+            Loading...
+          </div>
+        )}
       </div>
     </div>
   );

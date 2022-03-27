@@ -23,10 +23,10 @@ const VideoCard = ({data}: Props) => {
 
   useEffect(()=>{
     getUser();
-  },data)
-  console.log(data);
+  },[data])
+
   return (
-    <div>
+    <div className="w-full">
       {" "}
       {/* VideoCard */}
       <Link href="/">
@@ -37,14 +37,14 @@ const VideoCard = ({data}: Props) => {
               {moment.duration(Math.ceil(data?.metadata?.duration / 60) *60 *1000).humanize()}
             </div>
           </div>
-          <h6 className="text-lg  overflow-ellipsis flex whitespace-pre-wrap">
+          <h6 className="text-lg mb-2  overflow-ellipsis flex whitespace-pre-wrap">
             {data?.metadata?.name.slice(
               0,
               60
             ) + ( data?.metadata?.name.length > 60 ? "..." : '')}
           </h6>
           <div className="flex gap-2">
-            <div className="h-10 w-10 rounded-full bg-gray-600">
+            <div className="h-10 w-10 ring-1 ring-white rounded-full bg-gray-600">
             {user?.metadata?.image && <img src={user?.metadata?.image} alt="profile-pic" />}
             </div>
               <div>

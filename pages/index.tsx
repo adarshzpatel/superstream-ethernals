@@ -9,23 +9,8 @@ import { videosListState } from "../recoil/states";
 import { id } from "ethers/lib/utils";
 
 const Home = () => {
-  const [videos, setVideos] = useRecoilState(videosListState);
-  const videoNFTCollection = useNFTCollection(STREAM_NFT_ADDRESS);
-  const superstream = useSuperstreamContract();
 
-  const fetchVideos = async () => {
-    try {
-      const _videoNFTs = await videoNFTCollection.getAll();
-      setVideos(_videoNFTs);
-      console.log(videos);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  useEffect(() => {
-    fetchVideos();
-  }, []);
+ 
   return (
     <div className="p-4">
       <div className=" flex  p-8  ease-out duration-500 items-center w-full bg-gradient-to-br rounded-2xl from-violet-800 via-purple-600  to-fuchsia-400">
@@ -51,11 +36,9 @@ const Home = () => {
       </div>
 
       <div className="mt-8  gap-4 grid sm:grid-cols-2 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 ">
-        <div>
           {videos.map((item) => (
             <VideoCard key={item.nftId} data={item}/>
           ))}
-        </div>
       </div>
     </div>
   );
