@@ -59,7 +59,7 @@ const Layout = ({children}: Props) => {
 
   useEffect(() => {
     fetchVideos();
-  }, []);
+  }, [currentUserAddress]);
   
   return (
     <div className="flex flex-col min-h-screen">

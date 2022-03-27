@@ -4,12 +4,12 @@ import VideoCard from "../components/VideoCard";
 import { STREAM_NFT_ADDRESS } from "../constants";
 import useSuperstreamContract from "../hooks/useSuperstreamContract";
 import BigNumber, { ethers } from "ethers";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { videosListState } from "../recoil/states";
 import { id } from "ethers/lib/utils";
 
 const Home = () => {
-
+  const videos = useRecoilValue(videosListState);
  
   return (
     <div className="p-4">
@@ -36,7 +36,7 @@ const Home = () => {
       </div>
 
       <div className="mt-8  gap-4 grid sm:grid-cols-2 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 ">
-          {videos.map((item) => (
+          {videos?.map((item) => (
             <VideoCard key={item.nftId} data={item}/>
           ))}
       </div>

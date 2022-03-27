@@ -8,7 +8,7 @@ type Props = {
 
 const LiveVideo = ({ src, poster }: Props) => {
   return (
-      <AspectRatio ratio="16/9" minHeight="360p" >
+      <AspectRatio ratio="16/9" minHeight="360px" >
 
       <HlsPlayer
         src={src}

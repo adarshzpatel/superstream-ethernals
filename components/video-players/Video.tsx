@@ -1,5 +1,5 @@
 import React from "react";
-import { VideoPlayer, MediaUi } from "@vidstack/player/react";
+import { VideoPlayer, MediaUi, AspectRatio } from "@vidstack/player/react";
 
 type Props = {
   src: string;
@@ -8,11 +8,11 @@ type Props = {
 
 const Video = ({ src, poster }: Props) => {
   return (
-    <div>
+    <div className="aspect-video h-64 w-full"   >
       <VideoPlayer
-        height={480}
-        width={848}
         src={src}
+        height={480}
+  
         poster={poster}
         controls
         autoplay

@@ -80,7 +80,7 @@ const SendTip = ({ isOpen, setIsOpen,toAddress,toUser }: Props) => {
       );
 
       const latestRoundData = await priceFeed.latestRoundData();
-      console.log(latestRoundData);
+  
       const maticPrice = (
         latestRoundData?.answer.toNumber() / 100000000
       ).toFixed(2);

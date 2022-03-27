@@ -53,7 +53,7 @@ const dashboard: NextPage = (props: Props) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
       <StreamDetails
-    username={currentUser?.data?.name}
+      username={currentUser?.data?.name}
       status={streamStatus?.isActive}
       streamKey={streamStatus?.streamKey}
       lastSeen={streamStatus?.lastSeen}

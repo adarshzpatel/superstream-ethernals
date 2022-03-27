@@ -12,6 +12,7 @@ import VideoCard from "../../components/VideoCard";
 import { useRecoilState } from "recoil";
 import { videosListState } from "../../recoil/states";
 import moment from "moment";
+import Link from "next/link";
 
 type Props = {};
 
@@ -123,11 +124,12 @@ const ProfilePage = (props: Props) => {
           <h6 className="text-lg text-gray-300 border-b border-1 border-gray-600 uppercase font-display tracking-wider fond-bold">
             More from {profile?.metadata.name}
           </h6>
-          <div className="hidden lg:flex flex-col w-full ">
+          <div className="hidden lg:flex flex-col w-full gap-4 ">
             {videos?.map((data) => {
               if (data?.owner == profile?.owner) {
                 return (
-                <div className="w-full ">
+                  <Link href={`/video?id=${data?.metadata?.id.toString()}`}>
+                <div className="w-full cursor-pointer">
                     <div className="animate-pulse rounded-lg relative aspect-video mb-2 bg-slate-500  w-full">
                       <img src={data?.metadata?.image} alt="" />
                       <div className="bg-slate-900 text-xs text-white absolute right-2 bottom-2 p-1 rounded-md">
@@ -146,6 +148,7 @@ const ProfilePage = (props: Props) => {
                       {moment(data?.metadata?.created_at).fromNow()}{" "}
                     </p>
                   </div>
+            </Link>
                 );
               }
             })}

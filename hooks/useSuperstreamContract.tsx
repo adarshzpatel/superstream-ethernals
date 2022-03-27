@@ -153,17 +153,8 @@ const useSuperstreamContract = () => {
     }
   };
   
-  const getFollowData = async (username:string):Promise<{follows:number[],followers:number[]}> => {
-    try {
-      const data = await contract.getFollowData(username);
-      console.log(data);
-      return {follows:data[0],followers:data[1]}
-    } catch (err) {
-      console.error(err);
-      toast.error(err.message);
-    }
-  };
 
+  
   const getSessionData = async (streamNftId:number):Promise<SessionData> => {
     try{
       const response = await contract.getSessionData(streamNftId);
@@ -210,7 +201,6 @@ const useSuperstreamContract = () => {
     checkIfPublished,
     like,
     follow,
-    getFollowData,
     getSessionData,
     getSessionWithViewIncrement,
     sendTip
