@@ -27,7 +27,6 @@ const VideoCard = ({ data }: Props) => {
 
   return (
     <div className="w-full">
-      {" "}
       {/* VideoCard */}
       <Link href={`/video?id=${data?.metadata.id.toString()}`}>
         <div className="p-3 rounded-lg  group hover:scale-105 hover:shadow-xl duration-200 ease-out cursor-pointer  hover:bg-gray-800 max-w-sm">

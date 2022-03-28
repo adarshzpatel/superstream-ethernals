@@ -12,7 +12,6 @@ const Video = ({ src, poster }: Props) => {
       <VideoPlayer
         src={src}
         height={480}
-  
         poster={poster}
         controls
         autoplay

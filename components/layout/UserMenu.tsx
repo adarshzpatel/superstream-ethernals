@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Menu } from "@headlessui/react";
 import Link from "next/link";
 import { ChevronDownIcon } from "@heroicons/react/outline";
 import { useAddress, useDisconnect} from "@thirdweb-dev/react";
-import { useRecoilState } from "recoil";
-
+import { useRecoilValue } from "recoil"
 import { currentUserState } from "../../recoil/states";
 
 
@@ -14,10 +13,9 @@ export const parseAddress = (address) => {
 
 
 const UserMenu = () => {
-  const [currentUser,setCurrentUser] = useRecoilState(currentUserState);
+  const currentUser = useRecoilValue(currentUserState);
   const disconnect = useDisconnect();
   const address = useAddress();
- 
 
   const handleDisconnect = () => {
     disconnect();
