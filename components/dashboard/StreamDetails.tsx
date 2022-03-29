@@ -1,27 +1,28 @@
-
 import moment from "moment";
 import { NextRouter, useRouter } from "next/router";
-import React, { useEffect, useRef, useState } from "react";
-import toast, { ToastBar } from "react-hot-toast";
-import useSuperstreamContract from "../../hooks/useSuperstreamContract";
-
+import React, { useState } from "react";
+import { useRecoilValue } from "recoil";
+import useLivpeerApi from "../../hooks/useLivepeerApi";
+import { currentUserState } from "../../recoil/states";
 import Copyable from "../Copyable";
 
-const StreamDetails = (props: Props) => {
-  const [title,setTitle] = useState<string>();
-  const [selectedThumbnail,setSelectedThumbnail] = useState<string>();
+const StreamDetails = ({stream}:any) => {
+  const [title, setTitle] = useState<string>();
+  const [selectedThumbnail, setSelectedThumbnail] = useState<string>();
+  const currentUser = useRecoilValue(currentUserState);
   // const titleInputRef= useRef<HTMLInputElement>();
   // const thumbnailPickerRef = useRef<HTMLInputElement>();
   // const [editing ,setEditing] = useState<boolean>();
-  const router:NextRouter = useRouter();
+
   // const superstream = useSuperstreamContract();
-  
+
+
   // const fetchDefaultStreamInfo = async () => {
 
-  //   const streamInfo = await superstream.getStreamInfo(props.username);
+  //   const streamInfo = await superstream.getStreamInfo(stream.username);
   //   setSelectedThumbnail(streamInfo.thumbnail);
   //   setTitle(streamInfo.title);
-    
+
   // }
 
   // const updateChanges = async () => {
@@ -31,21 +32,21 @@ const StreamDetails = (props: Props) => {
   //       toast.error("New title cannot be empty string");
   //       router.reload();
   //       return;
-  //     } 
+  //     }
   //     if(newTitle == title){
-  //       await superstream.updateStreamInfo(props.username,title,newThumbnail);
+  //       await superstream.updateStreamInfo(stream.username,title,newThumbnail);
   //     } else {
-  //       await superstream.updateStreamInfo(props.username,newTitle,newThumbnail);
+  //       await superstream.updateStreamInfo(stream.username,newTitle,newThumbnail);
   //     }
   // }
 
   // useEffect(()=>{
-  //   if(props.username){
-     
+  //   if(stream.username){
+
   //       fetchDefaultStreamInfo();
-    
+
   //   }
-  // },[props.username])
+  // },[stream.username])
 
   //Editing Default Thumbnail & Title
   // const handleThumbnailChange = () => {
@@ -79,8 +80,7 @@ const StreamDetails = (props: Props) => {
 
   return (
     <div className="">
-
-          {/* <div className="bg-gray-800 border-2 rounded-md  text-gray-500 border-dashed  border-gray-600  overflow-hidden aspect-video h-64 flex items-center justify-center">
+      {/* <div className="bg-gray-800 border-2 rounded-md  text-gray-500 border-dashed  border-gray-600  overflow-hidden aspect-video h-64 flex items-center justify-center">
             {!selectedThumbnail && "No Default Livestream thumbnail selected" }
             {selectedThumbnail && <img src={selectedThumbnail} className='object-contain object-center h-full w-full'/>}
             
@@ -96,16 +96,16 @@ const StreamDetails = (props: Props) => {
 
           </div> */}
 
-          <div className="bg-gray-800 mb-4  border-gray-600 rounded-md text-gray-500 aspect-video h-64 flex items-center justify-center ">
-            {/* {props.status ?  : "OFFLINE"} */}
-          </div>
-      
-        <div>
-          <h6 className="border-b text-xl font-display  pb-1 border-gray-600">
-            Stream Details
-          </h6>
-          <table className="text-left">
-            <tbody>
+      <div className="bg-gray-800 mb-4  border-gray-600 rounded-md text-gray-500 aspect-video  flex items-center justify-center ">
+        {/* {stream.status ? "ONLINE" : "OFFLINE"} */}
+      </div>
+
+      <div>
+        <h6 className="border-b text-xl font-display  pb-1 border-gray-600">
+          Stream Details
+        </h6>
+        <table className="text-left">
+          <tbody>
             <tr>
               <th className="w-32 h-12 font-normal  text-gray-400">Server</th>
               <td>
@@ -119,7 +119,7 @@ const StreamDetails = (props: Props) => {
               </th>
               <td>
                 {" "}
-                <Copyable text={props.streamKey || "Unavailable"} />{" "}
+                <Copyable text={stream?.streamKey || "Unavailable"} />{" "}
               </td>
             </tr>
             <tr>
@@ -128,7 +128,13 @@ const StreamDetails = (props: Props) => {
               </th>
               <td>
                 {" "}
-                <Copyable text={props.username ? `${window.location.origin}/u/${props.username}` : "Unavailable"}/>
+                <Copyable
+                  text={
+                    currentUser?.hasProfile
+                      ? `${window.location.origin}/u/${currentUser?.profile?.username}`
+                      : "Unavailable"
+                  }
+                />
               </td>
             </tr>
             <tr>
@@ -136,17 +142,27 @@ const StreamDetails = (props: Props) => {
                 Last seen
               </th>
               <td>
-              {props?.lastSeen ? (moment(props.lastSeen).format("MMMM Do yyyy , h:mm a")) : "Never" }
+                {stream?.lastSeen
+                  ? moment(stream.lastSeen).format("MMMM Do yyyy , h:mm a")
+                  : "Never"}
               </td>
             </tr>
             <tr>
               <th className="w-12 h-12 font-normal  text-gray-400">Status</th>
-              <td> {props.status ? (<div className="px-2 max-w-fit rounded-md bg-emerald-500">Live</div>) : "Idle"} </td>
+              <td>
+                {" "}
+                {stream?.status ? (
+                  <div className="px-2 max-w-fit rounded-md bg-emerald-500">
+                    Live
+                  </div>
+                ) : (
+                  "Idle"
+                )}{" "}
+              </td>
             </tr>
-            </tbody>
-          </table>
-        </div>
-      
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

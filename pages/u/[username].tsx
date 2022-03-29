@@ -1,6 +1,4 @@
-import { useAddress, useNFTCollection } from "@thirdweb-dev/react";
-import { NFTMetadataOwner } from "@thirdweb-dev/sdk";
-import { BigNumber } from "ethers";
+import { useAddress, } from "@thirdweb-dev/react";
 import { NextRouter, useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import ProfileInfo from "../../components/profile/ProfileInfo";
@@ -14,6 +12,7 @@ import moment from "moment";
 import Link from "next/link";
 import Videojs from "../../components/video-players/Videojs";
 import Spinner from "../../components/Spinner";
+import { directive } from "lit-html/directive";
 
 type Props = {};
 
@@ -24,10 +23,9 @@ const ProfilePage = (props: Props) => {
   const livepeer = useLivpeerApi();
   const currentAccount = useAddress();
   const [profile, setProfile] = useState<any>();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [hasProfile, setHasProfile] = useState<boolean>(false);
   const [stream, setStream] = useState<any>();
-
   const [videos, setVideos] = useRecoilState(videosListState);
 
 
@@ -36,8 +34,10 @@ const ProfilePage = (props: Props) => {
     try {
       const _profile:any = await superstream.getProfileByUsername(username);
       setProfile(_profile);
+      setHasProfile(true);
     } catch (err) {
       console.error(err);
+      setHasProfile(false);
     }
     setLoading(false);
   };
@@ -80,7 +80,7 @@ const ProfilePage = (props: Props) => {
                 <div className="relative h-96 aspect-video">
                 <Videojs
                   src={
-                    `https://cdn.livepeer.com/hls/${stream?.playbaclId}/index.m3u8`
+                    `https://cdn.livepeer.com/hls/${stream?.playbackId}/index.m3u8`
                   }
                   />
                    </div>
@@ -91,7 +91,7 @@ const ProfilePage = (props: Props) => {
               )}
             </div>
           </div>
-          <ProfileInfo profile={profile} />
+          <ProfileInfo profileData={profile} />
         </div>
         <div className="hidden flex-col lg:flex gap-4">
           <h6 className="text-lg text-gray-300 border-b pb-3 border-1 border-gray-600 uppercase font-display tracking-wider fond-bold">
@@ -129,9 +129,12 @@ const ProfilePage = (props: Props) => {
         </div>
       </div>
     );
+  } else if(loading) {
+    return <div className="h-[85vh] flex flex-col gap-2 items-center justify-center"><Spinner className="w-12 fill-slate-400 mr-1 animate-spin text-slate-700" />Fetching profile...</div>;
+  } else {
+    return (<div className="h-[85vh] flex items-center justify-center">Profile Not Found!!</div>)
   }
-
-  return <div className="h-[85vh] flex flex-col gap-2 items-center justify-center"><Spinner className="w-12 fill-slate-400 mr-1 animate-spin text-slate-700" />Fetching profile...</div>;
+  
 };
 
 export default ProfilePage;

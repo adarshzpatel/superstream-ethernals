@@ -143,6 +143,9 @@ const useSuperstreamContract = () => {
       const tx = await contract.follow(toFollowUsername);
       await tx.wait();
       console.log(tx);
+      // Events testing
+      // contract.on()
+    
     } catch (err) {
       console.error(err);
       toast.error(err.message);

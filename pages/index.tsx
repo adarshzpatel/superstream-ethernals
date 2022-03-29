@@ -1,16 +1,34 @@
-import { useNFTCollection } from "@thirdweb-dev/react";
+
 import React, { useEffect, useState } from "react";
 import VideoCard from "../components/VideoCard";
-import { STREAM_NFT_ADDRESS } from "../constants";
-import useSuperstreamContract from "../hooks/useSuperstreamContract";
-import BigNumber, { ethers } from "ethers";
-import { useRecoilState, useRecoilValue } from "recoil";
+
+import { useRecoilValue } from "recoil";
 import { videosListState } from "../recoil/states";
-import { id } from "ethers/lib/utils";
+import useSuperstreamContract from "../hooks/useSuperstreamContract";
+import { Event } from "ethers";
 
 const Home = () => {
   const videos = useRecoilValue(videosListState);
- 
+  const superstream = useSuperstreamContract();
+  
+  useEffect(()=>{
+    // superstream.contract.on("ProfileCreated",(profile)=>{
+    //   console.log("ProfileCreated");
+    //   console.log(profile);
+    // });
+    const filterFrom = superstream.contract.filters.Followed();
+    const fetchOldEvents = async () => {
+      const items = await superstream.contract.queryFilter(filterFrom);
+      items.forEach((item)=>{
+        console.log(item.args._from.toString());
+      })
+    }
+    fetchOldEvents();
+    return () => {
+      superstream.contract.removeAllListeners("Followed");
+    }
+  },[]);
+  
   return (
     <div className="">
       <div className=" flex  p-8  ease-out duration-500 items-center w-full bg-gradient-to-br rounded-2xl from-violet-800 via-purple-600  to-fuchsia-400">
@@ -34,11 +52,11 @@ const Home = () => {
           </div>
         </div>
       </div>
-
       <div className="mt-8  gap-4 grid sm:grid-cols-2 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 ">
           {videos?.map((item) => (
             <VideoCard key={item.nftId} data={item}/>
           ))}
+          
       </div>
     </div>
   );

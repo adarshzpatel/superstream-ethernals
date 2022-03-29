@@ -13,12 +13,13 @@ import { useSigner } from "@thirdweb-dev/react";
 import {HeartIcon as HeartIconFilled} from "@heroicons/react/solid"
 
 type Props = {
-  profile: any
+  profileData: any
 };
 
 
 
-const ProfileInfo = ({ profile }: Props) => {
+const ProfileInfo = ({ profileData }: Props) => {
+  const [profile,setProfile] = useState<any>(profileData);
   const [tipModal,setTipModal] = useState<boolean>(false);
   const currentUser = useRecoilValue(currentUserState);
   const {follow} = useSuperstreamContract();
@@ -37,6 +38,7 @@ const ProfileInfo = ({ profile }: Props) => {
     if(signer){
       await follow(profile?.username).catch(err=>{
         toast.success("You followed " + profile?.username )
+        setProfile({...profile,followers:[...profile.followers,currentUser?.profile.username]});
       })
     } else {
       toast("Connect your Metamask !")
@@ -65,7 +67,7 @@ const ProfileInfo = ({ profile }: Props) => {
           <p className="text-medium text-gray-400">{profile?.followers.length} Followers  <Copyable text={parseAddress(profile?.owner)} copyText={profile?.owner}/></p>
         </div>
         <div className="flex gap-2">
-          {<button disabled={isFollowing} onClick={handleFollow} className="text-lg bg-violet-600 hover:bg-violet-500 group  disabled:text-gray-400  disabled:bg-gray-800  gap-2">
+          {!isOwner && <button disabled={isFollowing} onClick={handleFollow} className="text-lg bg-violet-600 hover:bg-violet-500 group  disabled:text-gray-400  disabled:bg-gray-800  gap-2">
             {!isFollowing && <HeartIcon className="group-hover:scale-110 group-hover:rotate-12 duration-300 ease-out h-6 w-6" />}
             {isFollowing && <HeartIconFilled className="group-hover:scale-110 group-hover:rotate-12 duration-300 ease-out h-6 w-6" />}
             {isFollowing ? "Following" : "Follow"}
