@@ -143,7 +143,7 @@ const SendTip = ({ isOpen, setIsOpen,toAddress,toUser }: Props) => {
               </Dialog.Title>
               <p className="text-sm text-gray-400  font-display">Receiver's Address : {toAddress} </p>
               <div className="mt-4 flex flex-col">
-                <label className="mb-2 italic  font-medium text-gray-400 text-sm">
+                <label className="mb-2 italic  font-medium text-gray-300 text-sm">
                   Tip Amount in MATIC
                 </label>
                 <input
@@ -157,7 +157,7 @@ const SendTip = ({ isOpen, setIsOpen,toAddress,toUser }: Props) => {
                   <p className="text-gray-300 font-display max-w-fit font-medium bg-gray-700 p-1 px-3 rounded-xl">
                     1 MATIC = $ {maticPrice}
                   </p>
-                  <p className="text-white bg-violet-900 font-display bg-opacity-50 font-medium  ring-1 ring-violet-00  p-1 px-3 rounded-xl">
+                  <p className="text-violet-300 bg-violet-900 font-display bg-opacity-50 font-medium  ring-1 ring-violet-400  p-1 px-3 rounded-xl">
                    Tip : {tipAmount} MATIC ( $ {(maticPrice * tipAmount).toFixed(2)} )
                   </p>
                 </div>

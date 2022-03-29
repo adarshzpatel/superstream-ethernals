@@ -12,7 +12,10 @@ const Videojs = ({ src }) => {
   const options = {
     autoplay: true,
     controls: true,
-
+    liveui:true,
+    responsive:true,
+    fluid:true,
+    playbackRates: [0.5, 1, 1.5, 2],
     sources: [
       {
         src,
@@ -39,7 +42,7 @@ const Videojs = ({ src }) => {
     } else {
       // you can update player here [update player through props]
       const player = playerRef.current;
-      player.autoplay(options.autoplay);
+    //   player.autoplay(options.autoplay);
       player.src(options.sources);
     }
   }, [options, videoRef]);
@@ -55,10 +58,12 @@ const Videojs = ({ src }) => {
     };
   }, [playerRef]);
 
-  return (
-    <div data-vjs-player>
-      <video ref={videoRef} className="video-js vjs-big-play-centered vjs-theme-fantasy" />
+  return (<div className="relative  bg-slate-800 aspect-video rounded-md overflow-hidden">
+
+    <div data-vjs-player >
+      <video ref={videoRef} className="video-js vjs-big-play-centered h-full w-full" />
     </div>
+  </div>
   );
 };
 

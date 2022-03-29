@@ -14,7 +14,6 @@
     "@thirdweb-dev/react": "^2.0.1",
     "@thirdweb-dev/sdk": "^2.0.13",
     "@videojs/http-streaming": "^2.14.0",
-    "@vidstack/player": "^0.13.1",
     "axios": "^0.26.0",
     "dotenv": "^16.0.0",
     "hls.js": "^1.1.5",

@@ -11,6 +11,5 @@ module.exports = {
     extend: {},
   },
   plugins: [
-    require('@vidstack/player/tailwind.cjs'),
   ],
 }

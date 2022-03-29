@@ -1,84 +1,27 @@
-import React, { Fragment, useRef, useState } from "react";
-import { useAddress } from "@thirdweb-dev/react";
-import toast from "react-hot-toast";
-import useLivpeerApi from "../hooks/useLivepeerApi";
-import useWeb3Storage from "../hooks/useWeb3Storage";
-import useSuperstreamContract from "../hooks/useSuperstreamContract";
-import { NextRouter, useRouter } from "next/router";
-import Spinner from "../components/Spinner";
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/outline";
+import React, { Fragment, useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
+import useSuperstreamContract from "../../hooks/useSuperstreamContract";
+import useWeb3Storage from "../../hooks/useWeb3Storage";
+import Spinner from "../Spinner";
 
 type Props = {
+  isOpen: boolean;
+  setIsOpen: (boolean) => void;
   web3storageToken:string
 };
 
 
-export async function getStaticProps() {
-  const token = process.env.ACCESS_TOKEN;
-  return {
-    props: {
-      web3storageToken:token
-    }, // will be passed to the page component as props
-  }
-}
 
 
-
-const profile = (props:Props) => {
-  const currentAccount = useAddress();
-  const router:NextRouter = useRouter();
-  const [minting,setMinting] = useState<boolean>();
+const CreateProfile = ({ isOpen, setIsOpen,web3storageToken }: Props) => {
   const filePickerRef = useRef<HTMLInputElement>();
   const [selectedFile, setSelectedFile] = useState<string>();
-  const {addProfile,checkIfUsernameExists} = useSuperstreamContract()
-  const livepeerApi = useLivpeerApi();
-  const {storeFile} = useWeb3Storage();
-  const [error,setError] = useState<string[]>([]);
- 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMinting(true);
-    const username = e.target.username.value;
-    const bio = e.target.bio.value;
-    const file = filePickerRef.current.files[0];    
-    const usernameTaken = await checkIfUsernameExists(username);
-    if(!file) {
-      setError([...error,"Please Choose a profile picture"])
-    }
-    if(!username && !bio){
-      setError([...error,"Please fill all fields"])
-    } 
-    if(usernameTaken) {
-      setError([...error,"Username already taken !!"])
-    }
-    if(username && !usernameTaken && bio && file){
-      try{
-      // Create Stream in Livepeer -- get streamId,streamKey
-      const streamObject:any = await livepeerApi.createStream(username);
-      console.log(streamObject.data);
-      // Upload pfp to ipfs -- get pfpCid
-      toast("Uploading profile picture to Ipfs...")
-      const pfpUri = await storeFile(file,props.web3storageToken);
-      console.log("Profile Picture Uploaded to " +pfpUri);
-      // mint profile nft -- get profileId
-      toast("Creating Profile...")
-      await addProfile(username,bio,pfpUri,streamObject.data.id,streamObject.data.streamKey)
-      toast.success("Profile Created Successfully..")
-      router.push('/');
-      router.reload();
-      setMinting(false);
-    } catch(err) {
-      console.error(err);
-      toast.error(err.message);
-    }
-  }
-  setMinting(false)
-  };
-  
-
-
-
+  const [errors, setErrors] = useState<string[]>([]);
+  const [minting, setMinting] = useState<boolean>(false);
+  const web3Storage = useWeb3Storage();
+  const {checkIfUsernameExists} = useSuperstreamContract();
   const handleFileChange = () => {
     const file = filePickerRef.current.files[0];
     // Limit to either image/jpeg, image/jpg or image/png file
@@ -105,21 +48,48 @@ const profile = (props:Props) => {
     };
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMinting(true);
+    const username = e.target.username.value;
+    const bio = e.target.bio.value;
+    const file = filePickerRef.current.files[0];
 
-  if(!currentAccount){
-    return (
-      <div className="text-2xl font-medium">
-        PLease Connect to Metamask!
-      </div>
-    )
+    if(!file) {
+      setErrors([...errors,"Please Choose a profile picture"])
+    }
+    if(!username && !bio){
+      setErrors([...errors,"Please fill all fields"])
+    } 
+    // if(usernameTaken) {
+    //   setErrors([...errors,"Username already taken !!"])
+    // }
+    if(username && bio && file){
+    try{
+      // Upload thumbnail to ipfs
+      const pfp = await web3Storage.storeFile(file,web3storageToken);
+      // Save data to block chain
+
+    } catch(err){
+      toast.error(err.message);
+      console.error(err);
+    }
   }
+    setSelectedFile(null);
+    setMinting(false);
+  };
 
   const closeModal = () => {
-    router.back();
-  }
+    setIsOpen(false);
+  };
+
+  
+  useEffect(()=>{
+    return () => setSelectedFile(null);
+  },[])
 
   return (
-    <Transition appear show={true} as={Fragment}>
+    <Transition appear show={isOpen} as={Fragment}>
       <Dialog
         as="div"
         className="fixed inset-0 z-10 overflow-y-auto"
@@ -222,9 +192,9 @@ const profile = (props:Props) => {
                   </div>
                 </form>
               </div>
-              {error.length > 0 && (
+              {errors.length > 0 && (
                 <div className="w-full text-center italic font-medium text-red-400 mt-4">
-                  {error?.map((err) => (
+                  {errors?.map((err) => (
                     <p> * {err}</p>
                   ))}
                 </div>
@@ -237,4 +207,4 @@ const profile = (props:Props) => {
   );
 };
 
-export default profile;
+export default CreateProfile;

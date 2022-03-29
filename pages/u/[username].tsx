@@ -4,15 +4,16 @@ import { BigNumber } from "ethers";
 import { NextRouter, useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import ProfileInfo from "../../components/profile/ProfileInfo";
-import { PROFILE_NFT_ADDRESS } from "../../constants";
+
 import useSuperstreamContract from "../../hooks/useSuperstreamContract";
-import LiveVideo from "../../components/video-players/LiveVideo";
 import useLivpeerApi from "../../hooks/useLivepeerApi";
 import VideoCard from "../../components/VideoCard";
 import { useRecoilState } from "recoil";
 import { videosListState } from "../../recoil/states";
 import moment from "moment";
 import Link from "next/link";
+import Videojs from "../../components/video-players/Videojs";
+import Spinner from "../../components/Spinner";
 
 type Props = {};
 
@@ -22,65 +23,19 @@ const ProfilePage = (props: Props) => {
   const superstream = useSuperstreamContract();
   const livepeer = useLivpeerApi();
   const currentAccount = useAddress();
-  const [profile, setProfile] = useState<NFTMetadataOwner>();
-  const [profileId, setProfileId] = useState<string>();
+  const [profile, setProfile] = useState<any>();
   const [loading, setLoading] = useState<boolean>(false);
   const [hasProfile, setHasProfile] = useState<boolean>(false);
   const [stream, setStream] = useState<any>();
-  const profileNFT = useNFTCollection(PROFILE_NFT_ADDRESS);
+
   const [videos, setVideos] = useRecoilState(videosListState);
 
-  const getStreamStatus = async () => {
-    const _streamId = await superstream.getStreamId(profile?.metadata.name);
-    const _stream = await livepeer.fetchStreamStatus(_streamId);
-    setStream(_stream);
-    console.log(stream);
-  };
-
-  useEffect(() => {
-    setLoading(true);
-    if (profile?.metadata) {
-      getStreamStatus();
-    }
-    setLoading(false);
-  }, [profile]);
-
-  const getProfileId = async () => {
-    setLoading(true);
-    try {
-      const pid = await superstream.getProfileId(username);
-      console.log("Got Profile Id : " + pid);
-      setProfileId(pid);
-    } catch (error) {
-      console.error(error);
-    }
-    setLoading(false);
-    console.log(profile);
-  };
-
-  useEffect(() => {
-    if (username) {
-      console.log("Getting profileId");
-      getProfileId();
-    }
-  }, [username]);
 
   const checkIfUserHasProfile = async (): Promise<void> => {
     setLoading(true);
     try {
-      if (profileId) {
-        const _profile = await profileNFT.get(profileId);
-        if (_profile) {
-          setHasProfile(true);
-          console.log("Profile NFT Found");
-          setProfile(_profile);
-        } else {
-          setHasProfile(false);
-          console.log("You don't have a Profile ");
-        }
-      } else {
-        console.log("Profile Id Not Found!");
-      }
+      const _profile:any = await superstream.getProfileByUsername(username);
+      setProfile(_profile);
     } catch (err) {
       console.error(err);
     }
@@ -88,29 +43,47 @@ const ProfilePage = (props: Props) => {
   };
 
   useEffect(() => {
-    if (profileId) {
+    if (username) {
       checkIfUserHasProfile();
     }
-  }, [profileId]);
+  }, [username]);
+
+  const getStreamStatus = async () => {
+    setLoading(true);
+    const _stream = await livepeer.fetchStreamStatus(profile.streamId);
+    setStream(_stream);
+    console.log(stream);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (profile?.streamId) {
+      getStreamStatus();
+    }
+  }, [profile]);
+
+ 
+  
 
   if (profile) {
     return (
-      <div className="grid lg:grid-cols-4 grid-cols-1 gap-4">
-        <div className="static lg:col-span-3  w-full ">
+      <div className="grid lg:grid-cols-3 grid-cols-1 gap-4">
+        <div className="static lg:col-span-2  w-full ">
           <div className="relative select-none overflow-hidden mb-4 flex rounded-md items-center justify-center bg-gradient-to-br w-full h-full from-sky-300 via-violet-500 to-fuchsia-500">
             <img
-              src={profile?.metadata.image}
+              src={"https://ipfs.io/ipfs/"+profile?.pfp}
               alt=""
               className="absolute object-cover object-center w-full blur-3xl"
             />
-            <div className=" h-80 z-10  flex items-center justify-center  ">
+            <div className=" h-80  z-10  flex items-center justify-center  ">
               {stream?.isActive ? (
-                <LiveVideo
+                <div className="relative h-96 aspect-video">
+                <Videojs
                   src={
-                    stream.playbackId &&
-                    `https://cdn.livepeer.com/hls/${stream.playbackId}/index.m3u8`
+                    `https://cdn.livepeer.com/hls/${stream?.playbaclId}/index.m3u8`
                   }
-                />
+                  />
+                   </div>
               ) : (
                 <div className="font-bold font-display uppercase text-4xl">
                   User is Offline !!
@@ -121,8 +94,8 @@ const ProfilePage = (props: Props) => {
           <ProfileInfo profile={profile} />
         </div>
         <div className="hidden flex-col lg:flex gap-4">
-          <h6 className="text-lg text-gray-300 border-b border-1 border-gray-600 uppercase font-display tracking-wider fond-bold">
-            More from {profile?.metadata.name}
+          <h6 className="text-lg text-gray-300 border-b pb-3 border-1 border-gray-600 uppercase font-display tracking-wider fond-bold">
+            More from {profile?.username}
           </h6>
           <div className="hidden lg:flex flex-col w-full gap-4 ">
             {videos?.map((data) => {
@@ -158,7 +131,7 @@ const ProfilePage = (props: Props) => {
     );
   }
 
-  return <div>Loading...</div>;
+  return <div className="h-[85vh] flex flex-col gap-2 items-center justify-center"><Spinner className="w-12 fill-slate-400 mr-1 animate-spin text-slate-700" />Fetching profile...</div>;
 };
 
 export default ProfilePage;

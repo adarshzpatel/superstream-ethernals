@@ -5,11 +5,13 @@ import { SUPERSTREAM_CONTRACT_ADDRESS } from "../constants";
 import SuperstreamContract from "../artifacts/contracts/Superstream.sol/Superstream.json";
 import { AlchemyProvider } from "ethers/node_modules/@ethersproject/providers";
 import toast from "react-hot-toast";
+import { profile } from "console";
 
 
 type SessionData = {likes:number[],views:number,sessionId:string}
 const useSuperstreamContract = () => {
   const signer = useSigner();
+  
   const provider = new AlchemyProvider("maticmum", process.env.ALCHEMY_API);
   const contract = new ethers.Contract(
     SUPERSTREAM_CONTRACT_ADDRESS,
@@ -18,15 +20,17 @@ const useSuperstreamContract = () => {
   );
 
   const addProfile = async (
-    profileId: number,
     username: string | string[],
+    bio:string,
+    pfp:string,
     streamId: string,
     streamKey: string
   ): Promise<void> => {
     try {
       const tx = await contract.addProfile(
-        profileId,
         username,
+        bio,
+        pfp,
         streamId,
         streamKey
       );
@@ -37,16 +41,26 @@ const useSuperstreamContract = () => {
       toast.error(err.message);
     }
   };
-  const getProfileId = async (username: string | string[]): Promise<string> => {
-    try {
-      const profileId = await contract.getProfileId(username);
 
-      return profileId.toString();
+  const getProfileByUsername = async (username:string | string[]) => {
+    try {
+      const _profile = await contract.getProfileByUsername(username);
+      console.log(_profile);
+      return _profile;
     } catch (err) {
       console.error(err);
       toast.error(err.message);
     }
-  };
+  }
+  const getProfileByAddress = async () => {
+    try {
+      const _profile = await contract.getProfileByAddress();
+      console.log(_profile);
+      return _profile;
+    } catch (err) {
+      console.error(err);
+    }
+  }
   const getStreamId = async (username: string | string[]): Promise<string> => {
     try {
       const streamId = await contract.getStreamId(username);
@@ -57,9 +71,10 @@ const useSuperstreamContract = () => {
       toast.error(err.message);
     }
   };
-  const getStreamKey = async (username: string | string[]): Promise<string> => {
+
+  const getStreamKey = async (): Promise<string> => {
     try {
-      const streamKey = await contract.getStreamKey(username);
+      const streamKey = await contract.getStreamKey();
       return streamKey;
     } catch (err) {
       console.error(err);
@@ -89,25 +104,6 @@ const useSuperstreamContract = () => {
     }
   };
 
-  const updateStreamInfo = async (
-    username: string,
-    title: string,
-    thumbnail: string
-  ) => {
-    try {
-      const tx = await contract.updateDefaultStreamInfo(
-        username,
-        title,
-        thumbnail
-      );
-      await tx.wait();
-      toast.success("Stream Info Updated Successfully");
-      return;
-    } catch (err) {
-      console.error(err);
-      toast.error(err.message);
-    }
-  };
 
   const addStream = async (streamNftId: number, sessionId: string) => {
     try {
@@ -142,9 +138,9 @@ const useSuperstreamContract = () => {
     }
   };
 
-  const follow = async (fromUsername:string,toFollowUsername:string) => {
+  const follow = async (toFollowUsername:string) => {
     try {
-      const tx = await contract.like(fromUsername,toFollowUsername);
+      const tx = await contract.follow(toFollowUsername);
       await tx.wait();
       console.log(tx);
     } catch (err) {
@@ -154,7 +150,6 @@ const useSuperstreamContract = () => {
   };
   
 
-  
   const getSessionData = async (streamNftId:number):Promise<SessionData> => {
     try{
       const response = await contract.getSessionData(streamNftId);
@@ -178,7 +173,8 @@ const useSuperstreamContract = () => {
   const sendTip = async (toAddress:string,amount:number) => {
     try{
       const _amount = ethers.utils.parseEther(amount.toString());
-      const response = await contract.tip(toAddress,_amount);
+
+      const response = await contract.tip(toAddress,_amount,{value: _amount });
       await response.wait();
       console.log(response);
 
@@ -191,12 +187,12 @@ const useSuperstreamContract = () => {
   return {
     contract,
     addProfile,
-    getProfileId,
+    getProfileByAddress,
     getStreamId,
     getStreamKey,
     checkIfUsernameExists,
     getStreamInfo,
-    updateStreamInfo,
+    getProfileByUsername,
     addStream,
     checkIfPublished,
     like,

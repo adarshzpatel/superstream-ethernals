@@ -1,8 +1,23 @@
-import { NFTMetadata } from "@thirdweb-dev/sdk";
+
 import { atom } from "recoil";
 
+
+
+type Profile = {
+  id:number
+  username:string,
+  bio:string
+  pfp:string
+  streamId:string
+  defaultTitle:string
+  defaultThumbnail:string
+  follwers:string[]
+  follows:string[]
+  owner:string
+}
+
 type AppUserState = {
-  data?:NFTMetadata
+  profile?:Profile
   loading:boolean,
   hasProfile:boolean
 }

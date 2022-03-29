@@ -9,7 +9,7 @@ contract Superstream {
     }
 
     // Superchat & Tip
-    event ProfileCreated(string username,uint id,address owner);
+    event ProfileCreated(Profile _profile);
     event StreamPublished(uint streamNftId,address indexed creator);
     event Liked(uint senderId,uint indexed streamId);
     event Followed(string indexed _from,string indexed _to);
@@ -23,19 +23,23 @@ contract Superstream {
 
     struct Profile {
         uint id;
-        uint[] follows;
-        uint[] followers;
         string username;
+        string bio;
+        string pfp;
         string streamId;
-        string streamKey;
         string defaultTitle;
         string defaultThumbnail;
+        string[] followers;
+        string[] follows;
         address owner;
     }
 
+    uint profileId = 1;
     mapping(uint => Stream) streams;   // Stream NFT ID to stream 
-    mapping(string => Profile) private profiles; // username NFT ID to profile
-    mapping(string => bool) public usernameTaken;
+    mapping(address => string) private addressToStreamKey;
+    mapping(string => Profile) private usernameToProfile; // username to ProfileId
+    mapping(address => string) addressToUsername;
+    mapping(string => bool) public usernameTaken; 
     mapping(string => bool) public isPublished;
     
     function addStream(uint _streamNftId,string memory _sessionId) public {
@@ -46,55 +50,45 @@ contract Superstream {
         emit StreamPublished(_streamNftId, msg.sender);
     }
 
-    function like(uint _senderId,uint _sessionId) public returns(uint) {
-        streams[_sessionId].likes.push(_senderId);
-        emit Liked(_senderId, _sessionId); 
-        return streams[_sessionId].likes.length;       
-    }
-
-    function follow(string memory _from,string memory _to) public {
-        uint _from_pid = profiles[_from].id;
-        uint _to_pid = profiles[_to].id;
-        profiles[_from].follows.push(_to_pid);
-        profiles[_to].followers.push(_from_pid);
-        emit Followed(_from, _to);
-    }
-
-    function addProfile(uint _profileId,string memory _username,string memory _streamId,string memory _streamKey)public{
+    function addProfile(string memory _username,string memory _bio,string memory _pfp,string memory _streamId,string memory _streamKey)public{
         require(!usernameTaken[_username],"Username is Already Taken!");
+
         Profile memory newProfile;
-        newProfile.id = _profileId;
         newProfile.username = _username;
         newProfile.streamId = _streamId;
-        newProfile.streamKey = _streamKey;
-        newProfile.defaultThumbnail = '';
+        newProfile.bio = _bio;
+        newProfile.pfp = _pfp;
+        newProfile.defaultThumbnail ="";
         newProfile.defaultTitle = "Default Stream Title";
-        profiles[_username] = newProfile;
+        newProfile.owner = msg.sender;
+
+
         usernameTaken[_username] = true;
-        emit ProfileCreated(_username, _profileId, msg.sender);
-    }
-
-    function getProfileId(string memory _username) public view returns(uint) {
-        require(usernameTaken[_username],"Username does not exist");
-        return profiles[_username].id;
-    }
-
-    function getStreamId(string memory _username) public view returns(string memory){
-        require(usernameTaken[_username],"Username does not exist");
-        return profiles[_username].streamId;
+        usernameToProfile[_username] =  newProfile;
+        addressToUsername[msg.sender] =  _username;
+        addressToStreamKey[msg.sender] = _streamKey;
+        
+        emit ProfileCreated(newProfile);
+        profileId++;
     }
     
-    function getStreamKey(string memory _username) public view returns(string memory){
-        require(msg.sender == profiles[_username].owner,"Unauthorized");
-        return profiles[_username].streamKey;
+    function getProfileByUsername(string memory _username) public view returns(Profile memory){
+        return usernameToProfile[_username];
+    }
+    
+    function getProfileByAddress() public view returns(Profile memory){
+        return usernameToProfile[addressToUsername[msg.sender]];
     }
 
-    function getFollowData(string memory _username) public view returns(uint[] memory,uint[] memory){
-        return (profiles[_username].follows,profiles[_username].followers);
+    function getStreamKey() public view returns(string memory){
+        return addressToStreamKey[msg.sender];
     }
-
-    function getStreamInfo(string memory _username) public view returns (string memory,string memory){
-        return (profiles[_username].defaultThumbnail,profiles[_username].defaultTitle);
+    
+    function follow(string memory _to) public {
+        string memory _from = addressToUsername[msg.sender];
+        usernameToProfile[_from].follows.push(_to);
+        usernameToProfile[_to].followers.push(_from);
+        emit Followed(_from, _to);
     }
 
     function getSessionId(uint _id) public view returns(string memory){
@@ -109,15 +103,10 @@ contract Superstream {
         return streams[_id];
     }
 
-    function updateDefaultStreamInfo(string memory _username,string memory _title,string memory _thumbnail) public returns(string memory,string memory){
-        profiles[_username].defaultTitle = _title;
-        profiles[_username].defaultThumbnail = _thumbnail;
-        return (profiles[_username].defaultTitle,profiles[_username].defaultThumbnail);
-    }
-
     function tip(address receiver,uint _amount) payable public {
         (bool success,) = payable(receiver).call{value:_amount}("");
         require(success == true,"Failed to send Tip");
         emit Tipped(msg.sender,receiver,_amount);
     }
 }
+

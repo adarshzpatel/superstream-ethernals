@@ -12,7 +12,7 @@ const Home = () => {
   const videos = useRecoilValue(videosListState);
  
   return (
-    <div className="p-4">
+    <div className="">
       <div className=" flex  p-8  ease-out duration-500 items-center w-full bg-gradient-to-br rounded-2xl from-violet-800 via-purple-600  to-fuchsia-400">
         <div className="md:w-1/2 flex flex-col">
           <h1 className="text-4xl  font-display mb-2 font-bold">

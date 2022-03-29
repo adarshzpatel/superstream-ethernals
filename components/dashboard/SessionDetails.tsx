@@ -4,7 +4,6 @@ import moment from "moment";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { BeatLoader } from "react-spinners";
 import { STREAM_NFT_ADDRESS } from "../../constants";
 import useLivpeerApi from "../../hooks/useLivepeerApi";
 import useSuperstreamContract from "../../hooks/useSuperstreamContract";

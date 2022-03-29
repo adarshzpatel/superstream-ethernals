@@ -16,7 +16,7 @@ import { useRecoilValue } from "recoil";
 import Avatar from "../components/profile/Avatar";
 import SendTip from "../components/SendTip";
 import Spinner from "../components/Spinner";
-import Video from "../components/video-players/Video";
+import Videojs from "../components/video-players/Videojs";
 import { PROFILE_NFT_ADDRESS, STREAM_NFT_ADDRESS } from "../constants";
 import useSuperstreamContract from "../hooks/useSuperstreamContract";
 import { videosListState } from "../recoil/states";
@@ -104,9 +104,9 @@ const video: NextPage = (props: Props) => {
       <div className="lg:col-span-2">
         {/* Main */}
         <div className="mb-4 h-[480px] flex justify-center bg-black">
-          <Video
+          <Videojs
             src={currentVideo?.metadata?.animation_url}
-            poster={currentVideo?.metadata?.image}
+            // poster={currentVideo?.metadata?.image}
           />
         </div>
         <h1 className="text-2xl font-medium leading-relaxed">

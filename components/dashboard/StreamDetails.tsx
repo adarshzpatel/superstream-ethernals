@@ -1,4 +1,4 @@
-import { safeNotEqual } from "@vidstack/foundation";
+
 import moment from "moment";
 import { NextRouter, useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
@@ -6,15 +6,6 @@ import toast, { ToastBar } from "react-hot-toast";
 import useSuperstreamContract from "../../hooks/useSuperstreamContract";
 
 import Copyable from "../Copyable";
-import LiveVideo from "../video-players/LiveVideo";
-
-type Props = {
-  streamKey?:string
-  playbackId?:string
-  status?:string
-  username:string
-  lastSeen:number
-};
 
 const StreamDetails = (props: Props) => {
   const [title,setTitle] = useState<string>();
@@ -106,7 +97,7 @@ const StreamDetails = (props: Props) => {
           </div> */}
 
           <div className="bg-gray-800 mb-4  border-gray-600 rounded-md text-gray-500 aspect-video h-64 flex items-center justify-center ">
-            {props.status ? <LiveVideo src={`https://cdn.livepeer.com/hls/${props.playbackId}/index.m3u8`}/> : "OFFLINE"}
+            {/* {props.status ?  : "OFFLINE"} */}
           </div>
       
         <div>
