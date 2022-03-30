@@ -111,10 +111,10 @@ const SessionDetails = ({ streamId }: Props) => {
                           </a>
                         </Link>
                       )}
-                      {sessions?.length == 0 && "No sessions found!"}
                     </td>
                   </tr>
                 ))}
+               
             </tbody>
           </table>
         ) : (

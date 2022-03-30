@@ -1,18 +1,19 @@
-import { useAddress, } from "@thirdweb-dev/react";
+import { useAddress, useNFTCollection, } from "@thirdweb-dev/react";
 import { NextRouter, useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import ProfileInfo from "../../components/profile/ProfileInfo";
 
 import useSuperstreamContract from "../../hooks/useSuperstreamContract";
 import useLivpeerApi from "../../hooks/useLivepeerApi";
-import VideoCard from "../../components/VideoCard";
 import { useRecoilState } from "recoil";
-import { videosListState } from "../../recoil/states";
+import { currentUserState, videosListState } from "../../recoil/states";
 import moment from "moment";
 import Link from "next/link";
 import Videojs from "../../components/video-players/Videojs";
 import Spinner from "../../components/Spinner";
-import { directive } from "lit-html/directive";
+import { STREAM_NFT_ADDRESS } from "../../constants";
+import { MissingOwnerRoleError } from "@thirdweb-dev/sdk";
+
 
 type Props = {};
 
@@ -21,13 +22,15 @@ const ProfilePage = (props: Props) => {
   const { username } = router.query;
   const superstream = useSuperstreamContract();
   const livepeer = useLivpeerApi();
-  const currentAccount = useAddress();
   const [profile, setProfile] = useState<any>();
   const [loading, setLoading] = useState<boolean>(true);
   const [hasProfile, setHasProfile] = useState<boolean>(false);
   const [stream, setStream] = useState<any>();
   const [videos, setVideos] = useRecoilState(videosListState);
-
+  const {contract} = useSuperstreamContract();
+  const streamFilter = contract.filters.StreamPublished(null,profile?.owner);
+  const [streamsFromUser,setStreamsForUser] = useState<any>();
+  const streamNft = useNFTCollection(STREAM_NFT_ADDRESS);
 
   const checkIfUserHasProfile = async (): Promise<void> => {
     setLoading(true);

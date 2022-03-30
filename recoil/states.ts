@@ -8,7 +8,7 @@ type Profile = {
   streamId: string;
   defaultTitle: string;
   defaultThumbnail: string;
-  follwers: string[];
+  followers: string[];
   follows: string[];
   owner: string;
 };
