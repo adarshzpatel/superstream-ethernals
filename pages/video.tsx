@@ -171,7 +171,7 @@ const video: NextPage = (props: Props) => {
         </h6>
 
         <div className="flex flex-col gap-2 p-2">
-          {videos?.map((item) => (
+          {/* {videos?.map((item) => (
             <Link key={item?.id} href={`/video?id=${item?.id}`}>
               <div className="flex gap-2 cursor-pointer rounded-md hover:p-2 hover:scale-105 hover:bg-slate-800 duration-200 ease-out">
                 <div className="h-28  aspect-video bg-gray-500 animate-pulse rounded-md overflow-hidden">
@@ -192,7 +192,7 @@ const video: NextPage = (props: Props) => {
                 </div>
               </div>
             </Link>
-          ))}
+          ))} */}
         </div>
       </div>
     </div>

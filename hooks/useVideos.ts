@@ -26,7 +26,7 @@ const useVideos = () => {
           {
             title: item?.metadata?.name,
             description: item?.metadata?.description,
-            id: item?.metadata?.id.toString,
+            id: item?.metadata?.id,
             creator: item?.metadata?.creator,
             owner: item?.owner,
             createdAt: item?.metadata?.createdAt,
@@ -54,7 +54,7 @@ const useVideos = () => {
         {
           title: item?.metadata?.name,
           description: item?.metadata?.description,
-          id: item?.metadata?.id.toString,
+          id: item?.metadata?.id,
           creator: item?.metadata?.creator,
           owner: item?.owner,
           createdAt: item?.metadata?.createdAt,

@@ -32,6 +32,7 @@ const GameIcon = (props) => (
 );
 const Home = () => {
  const {videos} = useVideos();
+
   return (
     <div className="">
       <div className=" flex  p-8  ease-out duration-500 items-center w-full bg-gradient-to-br rounded-2xl from-violet-800 via-purple-600  to-fuchsia-400">
@@ -76,11 +77,11 @@ const Home = () => {
         </div>
         </Link>
       </div>
-      <h1 className="text-2xl mb font-medium text-grap-200">Trending Videos </h1>
+      <h1 className="text-2xl mb font-medium text-grap-200 mb-4">Trending Videos </h1>
       <div className="gap-4 grid sm:grid-cols-2 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 ">
-          {/* {videos?.map((item) => (
+          {videos?.map((item) => (
             <VideoCard key={item.id} data={item}/>
-          ))} */}
+          ))}
       </div>
     </div>
   );
