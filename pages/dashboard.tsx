@@ -1,67 +1,127 @@
-import { NextPage } from "next";
-import React, { useEffect, useState } from "react";
+import { useSigner } from "@thirdweb-dev/react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
-import SessionDetails from "../components/dashboard/SessionDetails";
-
-import StreamDetails from "../components/dashboard/StreamDetails";
+import { Tab } from "@headlessui/react";
+import Loading from "../components/Loading";
 import useLivpeerApi from "../hooks/useLivepeerApi";
-import useSuperstreamContract from "../hooks/useSuperstreamContract";
 import { currentUserState } from "../recoil/states";
+import StreamDetails from "../components/dashboard/streamDetails/StreamDetails";
+import SessionDetails from "../components/dashboard/SessionDetails";
+import Subscriptions from "../components/dashboard/Subscriptions/Subscriptions";
+import EditStreamInfo from "../components/dashboard/streamDetails/EditStreamInfo";
+import useSuperstreamContract from "../hooks/useSuperstreamContract";
+import Stats from "../components/dashboard/Subscriptions/Stats";
+import { InformationCircleIcon } from "@heroicons/react/outline";
 
-type Props = {};
+const tabs = [
+  'Stream Details ',
+  'Sessions',
+  'Published Videos',
+  'Subscriptions',
+]
 
-const dashboard: NextPage = (props: Props) => {
+type Props = {
+  web3storageToken:string
+};
+
+export async function getStaticProps() {
+  const token = process.env.ACCESS_TOKEN;
+  return {
+    props: {
+      web3storageToken:token
+    }, // will be passed to the page component as props
+  }
+}
+
+const Dashboard = ({web3storageToken}:Props) => {
+  const signer = useSigner();
   const currentUser = useRecoilValue(currentUserState);
-  const [streamId, setStreamId] = useState<string>();
-  const [streamStatus, setStreamStatus] = useState<any>({});
-  const superstream = useSuperstreamContract();
+  const [loading, setLoading] = useState(true);
+  const [stream, setStream] = useState<any>();
   const livepeer = useLivpeerApi();
-
-  const fetchStreamId = async () => {
-    const _streamId = await superstream.getStreamId(currentUser.data.name);
-    setStreamId(_streamId);
-    console.log({_streamId});
-  };
-
- 
-
-  const fetchStream = async () => {
-    const _status = await livepeer.fetchStreamStatus(streamId);
-    console.log({_status});
-    setStreamStatus(_status);
+  const router = useRouter();
+  const {getStreamKey} = useSuperstreamContract();
+  
+  const getStreamStatus = async () => {
+    setLoading(true);
+    const data = await livepeer.fetchStreamStatus(currentUser.profile.streamId);
+    setStream(data);
+    console.log(stream);
+    setLoading(false);
   };
 
   useEffect(() => {
-    if (currentUser?.data?.name) {
-      fetchStreamId();
+    if (currentUser?.profile?.streamId) {
+      getStreamStatus();
     }
   }, [currentUser]);
 
-  useEffect(() => {
-    if (streamId) {
-      setInterval(()=>{
-        fetchStream();
-      },20000)
-      
-    }
-  }, [streamId]);
+  if (!signer) {
+    return (
+      <div className="h-[85vh] flex items-center justify-center text-lg">
+        Please Connect your metamask wallet!
+      </div>
+    );
+  }
 
+  if (!currentUser.loading && !currentUser.hasProfile) {
+    router.push("/signup");
+  }
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  const styles = {
+    tablist: `flex   select-none  text-gray-400 p-1 gap-1 items-center bg-slate-800  rounded-lg  my-4 overflow-hidden `,
+    selectedTab: `bg-violet-600 font-medium shadow-xl text-white px-4 py-1 rounded-lg whitespace-nowrap`,
+    tab: `cursor-pointer px-4 font-normal py-1 hover:bg-slate-700 rounded-md duration-200 ease-out whitespace-nowrap`,
+  };
   return (
-    <div className="lg:px-4">
-      <h1 className="text-3xl  font-display">Dashboard  </h1>
-      <hr className="border-gray-600 my-4" />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-      <StreamDetails
-      username={currentUser?.data?.name}
-      status={streamStatus?.isActive}
-      streamKey={streamStatus?.streamKey}
-      lastSeen={streamStatus?.lastSeen}
-      />
-      {/* <hr className="border-gray-600 my-4" /> */}
-      <SessionDetails streamId={streamId} />
+    <div className="">
+      <h1 className="text-3xl white font-display">Dashboard </h1>
+      <div>
+        <Tab.Group>
+          <Tab.List className={styles.tablist}>
+            {tabs.map((item) => (
+              <Tab
+            key={item}
+                as="div"
+                className={({ selected }) =>
+                  selected ? styles.selectedTab : styles.tab
+                }
+              >
+                {item}
+              </Tab>
+            ))}
+          </Tab.List>
+          <Tab.Panels>
+            <Tab.Panel>
+              <div className="flex w-full flex-wrap gap-4">
+              <EditStreamInfo web3storageToken={web3storageToken}/>
+              <StreamDetails stream={stream} />
+              </div>
+            </Tab.Panel>
+            <Tab.Panel>
+              <SessionDetails streamId={currentUser?.profile?.streamId}/>
+            </Tab.Panel>
+            <Tab.Panel>Published Videos</Tab.Panel>
+            <Tab.Panel>
+            <div className="flex w-full flex-wrap gap-4">
+            <p className="border w-full bg-sky-900 bg-opacity-50 border-sky-500 text-sky-300 px-2 flex gap-2 p-1 rounded-md text-sm">
+          <InformationCircleIcon className="h-5 w-5 " />
+          Subscribers pay for each second in USDCx they are subscribed to your
+          channel.
+        </p>
+              <Subscriptions/>
+            <Stats/>
+            </div>
+            </Tab.Panel>
+          </Tab.Panels>
+        </Tab.Group>
       </div>
     </div>
   );
 };
-export default dashboard;
+export default Dashboard;

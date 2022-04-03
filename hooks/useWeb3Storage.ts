@@ -11,12 +11,10 @@ const useWeb3Storage = () => {
   const storeFile = async (file:File,token:string) =>{
     console.log("inside store file")
     try{
-      toast("🚀 Uploading file to IPFS")
+
       const client = new Web3Storage({token});
       const cid = await client.put([file]);
-
-      toast.success("Picture uploaded to IPFS")
-      return `ipfs://${cid}/${file.name}`;
+      return `${cid}/${file.name}`;
     }catch(err){
       console.error(err);
     }

@@ -5,7 +5,9 @@ import { Toaster } from "react-hot-toast";
 import { ChainId, ThirdwebProvider } from "@thirdweb-dev/react";
 import { RecoilRoot } from "recoil";
 
-function MyApp({ Component, pageProps }: AppProps) {
+
+
+function MyApp({ Component, pageProps, web3storageToken }) {
   return (
     <ThirdwebProvider desiredChainId={ChainId.Mumbai}>
         <RecoilRoot>

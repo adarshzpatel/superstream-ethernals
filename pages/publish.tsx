@@ -1,21 +1,18 @@
 import { useAddress, useNFTCollection } from "@thirdweb-dev/react";
-import { mkdtempSync } from "fs";
 import { useRouter, NextRouter } from "next/router";
-import React, { FormEventHandler, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import Select from "../components/Select";
-import LiveVideo from "../components/video-players/LiveVideo";
-import Video from "../components/video-players/Video";
-import { STREAM_NFT_ADDRESS } from "../constants";
 import useLivpeerApi from "../hooks/useLivepeerApi";
 import useWeb3Storage from "../hooks/useWeb3Storage";
-
 import axios from "axios";
 import { useRecoilValue } from "recoil";
 import { currentUserState } from "../recoil/states";
 import { ethers } from "ethers";
 import useSuperstreamContract from "../hooks/useSuperstreamContract";
-import dashboard from "./dashboard";
+import TagInputField from "../components/TagInputField";
+import Toggle from "../components/Toggle";
+
 type Props = {
   web3storageToken: string;
 };
@@ -28,11 +25,8 @@ const categories: Category[] = [
   { id: 1, name: "Entertainment" },
   { id: 2, name: "Gaming" },
   { id: 3, name: "Music" },
-  { id: 4, name: "News" },
-  { id: 5, name: "Tutorial" },
-  { id: 6, name: "DIY" },
-  { id: 7, name: "Web3" },
   { id: 8, name: "Technology" },
+  { id: 8, name: "" },
 ];
 
 export const getStaticProps = async () => {
@@ -57,7 +51,10 @@ const stream = (props: Props) => {
   const superstream = useSuperstreamContract();
   const [isPublished,setIsPublished] = useState<boolean>();
   const currentUser = useRecoilValue(currentUserState);
+  const [tags,setTags] = useState<string[]>([]);
   const {storeFile} = useWeb3Storage();
+  const [isSubscribersOnly, setIsSubscribersOnly] = useState();
+
   const checkIfAlreadyPublished = async () => {
     setLoading(true);
       const isMinted = await superstream.checkIfPublished(sessionId);
@@ -98,7 +95,7 @@ const stream = (props: Props) => {
     if(title && description && currentAccount && thumbnail ){
       toast("Minting stream Nft");
       const tokenId = await mintStream(title,description);
-      await superstream.addStream(tokenId,session.id);
+      await superstream.addStream(tokenId,session.id,isSubscribersOnly);
       toast.success("Stream NFT Minted successfully");
       router.push("/dashboard")
     }
@@ -114,13 +111,14 @@ const stream = (props: Props) => {
         const metadata = {
           name,
           description,
-          image: thumbnail,
+          image: "ipfs://"+thumbnail,
           animation_url: session.mp4Url,
           created_at: session.createdAt,
           duration: session.transcodedSegmentsDuration,
-          creator: currentUser.data.name,
+          creator: currentUser.profile.username,
           properties: {
             category: category.name,
+            tags: tags
           },
         };
         console.log(metadata);
@@ -186,13 +184,13 @@ const stream = (props: Props) => {
   }
 
   return (
-    <div className="mx-auto max-w-screen-lg">
+    <div className="mx-auto p-4">
       <h1 className="text-3xl font-display border-b border-gray-600 pb-4 mb-4">
         Mint & Publish Stream
       </h1>
       <form
         onSubmit={handleSubmit}
-        className=" flex gap-8  w-full"
+        className=" flex flex-col-reverse lg:flex-row gap-8  w-full"
       >
         <div className="w-1/2 flex flex-col gap-4">
           <div className={styles.inputContainer}>
@@ -215,6 +213,17 @@ const stream = (props: Props) => {
           <div className={styles.inputContainer}>
             <label>Select Category</label>
             <Select list={categories} setValue={setCategory} value={category} />
+          </div>
+          <div className={styles.inputContainer}>
+            <label>Subscribers Only</label>
+            <Toggle
+              enabled={isSubscribersOnly}
+              setEnabled={setIsSubscribersOnly}
+            />
+          </div>
+          <div>
+            <label className="mb-2">Tags</label>
+            <TagInputField maxTagsLength={5} tags={tags} setTags={setTags}/>
           </div>
           <button
             type="submit"
