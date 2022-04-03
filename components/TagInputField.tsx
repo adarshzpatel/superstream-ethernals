@@ -56,7 +56,7 @@ const TagInputField = ({ tags, setTags,maxTagsLength }: Props) => {
     <div>
       <div className="flex text-sm flex-wrap font-medium text-display  gap-1 mb-2">
       {tags.map((tag, index) => (
-        <div className="bg-emerald-600 flex items-center gap-1 px-2  py-1 rounded-lg ">
+        <div key={index} className="bg-emerald-600 flex items-center gap-1 px-2  py-1 rounded-lg ">
           {tag}
           <XIcon className="h-5 w-5 cursor-pointer  rounded-full p-[2px]" onClick={() => deleteTag(index)}/>
         </div>

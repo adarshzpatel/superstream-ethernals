@@ -11,6 +11,7 @@ import { currentUserState } from "../recoil/states";
 import { ethers } from "ethers";
 import useSuperstreamContract from "../hooks/useSuperstreamContract";
 import TagInputField from "../components/TagInputField";
+import Toggle from "../components/Toggle";
 
 type Props = {
   web3storageToken: string;
@@ -52,7 +53,7 @@ const stream = (props: Props) => {
   const currentUser = useRecoilValue(currentUserState);
   const [tags,setTags] = useState<string[]>([]);
   const {storeFile} = useWeb3Storage();
-
+  const [isSubscribersOnly, setIsSubscribersOnly] = useState();
 
   const checkIfAlreadyPublished = async () => {
     setLoading(true);
@@ -94,7 +95,7 @@ const stream = (props: Props) => {
     if(title && description && currentAccount && thumbnail ){
       toast("Minting stream Nft");
       const tokenId = await mintStream(title,description);
-      await superstream.addStream(tokenId,session.id);
+      await superstream.addStream(tokenId,session.id,isSubscribersOnly);
       toast.success("Stream NFT Minted successfully");
       router.push("/dashboard")
     }
@@ -110,7 +111,7 @@ const stream = (props: Props) => {
         const metadata = {
           name,
           description,
-          image: thumbnail,
+          image: "ipfs://"+thumbnail,
           animation_url: session.mp4Url,
           created_at: session.createdAt,
           duration: session.transcodedSegmentsDuration,
@@ -212,6 +213,13 @@ const stream = (props: Props) => {
           <div className={styles.inputContainer}>
             <label>Select Category</label>
             <Select list={categories} setValue={setCategory} value={category} />
+          </div>
+          <div className={styles.inputContainer}>
+            <label>Subscribers Only</label>
+            <Toggle
+              enabled={isSubscribersOnly}
+              setEnabled={setIsSubscribersOnly}
+            />
           </div>
           <div>
             <label className="mb-2">Tags</label>

@@ -34,8 +34,6 @@ const SessionDetails = ({ streamId }: Props) => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const livepeer = useLivpeerApi();
   const superstream = useSuperstreamContract();
-  const sessionNft = useNFTCollection(STREAM_NFT_ADDRESS);
-  const currentAccount = useAddress();
   const [sessionsLoading, setSessionsLoading] = useState<boolean>(true);
 
   const getSessions = async () => {

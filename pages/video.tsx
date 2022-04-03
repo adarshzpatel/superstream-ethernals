@@ -1,10 +1,11 @@
 import {
+  ExternalLinkIcon,
   EyeIcon,
   GiftIcon,
   HeartIcon,
   ThumbUpIcon,
 } from "@heroicons/react/outline";
-import { useNFTCollection } from "@thirdweb-dev/react";
+import { useNFTCollection, useSigner } from "@thirdweb-dev/react";
 import { ethers } from "ethers";
 import moment from "moment";
 import { NextPage } from "next";
@@ -12,35 +13,42 @@ import Link from "next/link";
 import { NextRouter, useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useRecoilValue } from "recoil";
 import Avatar from "../components/profile/Avatar";
-import SendTip from "../components/SendTip";
+import ProfileInfo from "../components/profile/ProfileInfo";
+import SendTip from "../components/profile/SendTip";
 import Spinner from "../components/Spinner";
 import Videojs from "../components/video-players/Videojs";
-import { PROFILE_NFT_ADDRESS, STREAM_NFT_ADDRESS } from "../constants";
+import CommentSection from "../components/video/CommentSection";
+import { STREAM_NFT_ADDRESS } from "../constants";
 import useSuperstreamContract from "../hooks/useSuperstreamContract";
-import { videosListState } from "../recoil/states";
+import useVideos from "../hooks/useVideos";
+import { Profile } from "../recoil/states";
 
 type Props = {};
 
 const video: NextPage = (props: Props) => {
   const router: NextRouter = useRouter();
+  const signer = useSigner();
   const id = router.query.id;
-  const videos = useRecoilValue(videosListState);
+  const { videos } = useVideos();
   const [currentVideo, setCurrentVideo] = useState<any>({});
-  const profileNft = useNFTCollection(PROFILE_NFT_ADDRESS);
-  const videoNft = useNFTCollection(STREAM_NFT_ADDRESS);
   const [videoExist, setVideoExist] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [profile, setProfile] = useState<any>();
+  const [profile, setProfile] = useState<Profile>();
   const superstream = useSuperstreamContract();
   const [tipModal, setTipModal] = useState<boolean>(false);
+  const videoNft = useNFTCollection(STREAM_NFT_ADDRESS);
 
-  const fetchProfileData = async () => {
-    if (currentVideo?.owner) {
-      const _user = await profileNft.getOwned(currentVideo?.owner);
-      setProfile(_user[0]);
-      setLoading(false);
+  const fetchProfileData = async (): Promise<void> => {
+    console.log(currentVideo);
+    try {
+      const _profile = await superstream.getProfileByUsername(
+        currentVideo?.metadata?.creator
+      );
+      console.log(_profile);
+      setProfile(_profile);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -54,32 +62,40 @@ const video: NextPage = (props: Props) => {
   const fetchVideo = async () => {
     setLoading(true);
     try {
-      const _video = await videoNft.get(ethers.BigNumber.from(id));
+      const _video = await videoNft.get(Number(id));
       setCurrentVideo(_video);
-      console.log({ VideoFound: _video });
       setVideoExist(true);
+      setLoading(false);
     } catch (err) {
       setVideoExist(false);
       toast.error(err.message);
       console.error(err);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (id) {
-      fetchVideo();
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (currentVideo?.owner) {
+    if (currentVideo?.metadata?.creator) {
       fetchProfileData();
     }
   }, [currentVideo]);
 
+  useEffect(() => {
+    if (signer) {
+      fetchVideo();
+    }
+  }, [signer]);
+
+  if (!signer) {
+    return (
+      <div className="h-[85vh] w-full flex items-center justify-center">
+        Please connect to your metamask wallet
+      </div>
+    );
+  }
   if (loading) {
     return (
-      <div className="h-[90vh] w-full flex items-center justify-center">
+      <div className="h-[85vh] w-full flex items-center justify-center">
         <Spinner />
       </div>
     );
@@ -87,7 +103,7 @@ const video: NextPage = (props: Props) => {
 
   if (!loading && !videoExist) {
     return (
-      <div className="h-[90vh] w-full flex items-center justify-center">
+      <div className="h-[85vh] w-full flex items-center justify-center">
         Video Does not exist.
       </div>
     );
@@ -98,76 +114,57 @@ const video: NextPage = (props: Props) => {
       <SendTip
         isOpen={tipModal}
         setIsOpen={setTipModal}
-        toUser={profile?.metadata.name}
+        toUser={profile?.username}
         toAddress={profile?.owner}
       />
       <div className="lg:col-span-2">
         {/* Main */}
-        <div className="mb-4 h-[480px] flex justify-center bg-black">
-          <Videojs
+        <div className="relative z-10 mb-4 h-[480px] flex justify-center bg-black">
+          <video
             src={currentVideo?.metadata?.animation_url}
+            poster={currentVideo?.metadata?.image}
+            controls
             // poster={currentVideo?.metadata?.image}
           />
         </div>
         <h1 className="text-2xl font-medium leading-relaxed">
           {currentVideo?.metadata?.name}
         </h1>
-        <div className="flex justify-between">
-          <p className="flex gap-2 items-center text-gray-400">
-            {" "}
-            <EyeIcon className="h-5 w-5" /> 0 Views |{" "}
-            <ThumbUpIcon className="h-5 w-5" /> 0 Likes
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleFollow}
-              className="bg-violet-600 hover:bg-violet-500"
-            >
-              <HeartIcon className="h-5 w-5" /> Follow
-            </button>
-            <button
-              onClick={handleLike}
-              className="bg-sky-500 hover:bg-sky-400"
-            >
-              {" "}
-              <ThumbUpIcon className="h-5 w-5" /> Like
-            </button>
-            <button
-              onClick={() => setTipModal(true)}
-              className="bg-emerald-500 hover:bg-emerald-400"
-            >
-              {" "}
-              <GiftIcon className="h-5 w-5" />
-              Tip
-            </button>
-          </div>
+        <div className="flex text-sm font-display items-center gap-2">
+
+        <div className="rounded-lg p-1 px-2 max-w-fit bg-slate-800 text-gray-200">
+         {currentVideo?.metadata?.properties.category}
+         </div>
+         {currentVideo?.metadata?.properties.tags.map((tag)=>(
+          <div className="rounded-lg p-1 px-2 max-w-fit bg-slate-800 text-gray-200" >{tag}</div>
+           ))}
         </div>
+          <h6 className="text-gray-200 font-medium mt-4">
+            Description
+          </h6>
+        <p className="text-gray-400 mb-4">
+          {currentVideo?.metadata?.description}
+          {/* {" "}
+            <EyeIcon className="h-5 w-5" /> 0 Views |{" "}
+            <ThumbUpIcon className="h-5 w-5" /> 0 Likes */}
+        </p>
+        <div className="max-w-min">
+        <a
+        target="_blank"
+        rel='noreferrer'
+          className="flex whitespace-nowrap text-sm items-center gap-1 font-medium bg-sky-500 hover:bg-sky-600 px-3 py-1 rounded-lg font-display"
+          href={`https://testnets.opensea.io/assets/mumbai/${STREAM_NFT_ADDRESS}/${currentVideo?.metadata?.id.toString()}`}
+        >
+          View on OpenSea <ExternalLinkIcon className="h-5 w-5" />
+        </a>
+          </div>
 
         <hr className="border-gray-600 my-4" />
 
-        <div className="flex gap-4">
-          <Avatar src={profile?.metadata.image} />
-          <div className="flex-1 font-display">
-            <Link
-              href={
-                profile?.metadata?.id
-                  ? `/u/${profile.metadata.id.toString()}`
-                  : ""
-              }
-            >
-              <h6 className="text-xl mt-2 font-bold">
-                {profile?.metadata.name}
-              </h6>
-            </Link>
-            <p className="text  mb-2 font-medium text-gray-300">
-              {profile?.owner}
-            </p>
-            <p className="text-gray-400 font-body ">
-              {currentVideo?.metadata.description}
-            </p>
-          </div>
-        </div>
-      </div>
+        {profile && <ProfileInfo profileData={profile} />}
+        <hr className="border-gray-600 my-4" /> 
+        <CommentSection topic={currentVideo?.metadata?.id.toString()}/>
+      </div> 
       <div className="col-span-1">
         <h6 className="text-lg pb-1 text-gray-300 border-b border-1 border-gray-600 uppercase font-display tracking-wider fond-bold">
           SUGGESTED VIDEOS
@@ -175,21 +172,22 @@ const video: NextPage = (props: Props) => {
 
         <div className="flex flex-col gap-2 p-2">
           {videos?.map((item) => (
-            <Link
-              key={item?.metadata?.id.toString()}
-              href={`/video?id=${item?.metadata?.id.toString()}`}
-            >
-              <div className="flex gap-2 cursor-pointer rounded-md p-2 hover:scale-105 hover:bg-slate-800 duration-200 ease-out">
-                <div className="h-28 p-2  aspect-video bg-gray-500 animate-pulse rounded-md">
-                  <img src={item?.metadata?.image} alt="" />
+            <Link key={item?.id} href={`/video?id=${item?.id}`}>
+              <div className="flex gap-2 cursor-pointer rounded-md hover:p-2 hover:scale-105 hover:bg-slate-800 duration-200 ease-out">
+                <div className="h-28  aspect-video bg-gray-500 animate-pulse rounded-md overflow-hidden">
+                  <img
+                    className="object-cover object-center"
+                    src={item?.thumbnail}
+                    alt=""
+                  />
                 </div>
                 <div>
                   <h1 className="text-lg font-medium cursor-pointer hover:text-violet-400  ">
-                    {item?.metadata?.name}
+                    {item?.title}
                   </h1>
-                  <p>{item?.metadata?.creator}</p>
+                  <p>{item?.creator}</p>
                   <p className="text-sm text-gray-400">
-                    {moment(new Date(item?.metadata?.created_at)).fromNow()}
+                    {moment(new Date(item?.createdAt)).fromNow()}
                   </p>
                 </div>
               </div>

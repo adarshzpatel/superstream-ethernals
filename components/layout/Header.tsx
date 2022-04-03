@@ -14,7 +14,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="sticky z-10  bg-gray-900 top-0 left-0 border-b border-gray-700">
+      <header className="sticky z-20  bg-gray-900 top-0 left-0 border-b border-gray-700">
         <nav className="py-3 px-4 flex justify-between items-center">
           <div className=" flex items-center gap-3  ">
             <Link href="/">

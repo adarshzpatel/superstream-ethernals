@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 
-type Profile = {
+export type Profile = {
   id: number;
   username: string;
   bio: string;
@@ -11,6 +11,9 @@ type Profile = {
   followers: string[];
   follows: string[];
   owner: string;
+  subscriptionCharge : BigInt; // flow rate  
+  subscribersCount:number;
+  isOnlySubscribers:boolean;
 };
 
 type AppUserState = {
@@ -19,13 +22,6 @@ type AppUserState = {
   hasProfile: boolean;
 };
 
-
-
-
-export const videosListState = atom({
-  key: "videos",
-  default: [],
-});
 
 export const currentUserState = atom<AppUserState>({
   key: "currentUser",

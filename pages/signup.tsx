@@ -42,17 +42,21 @@ const profile = (props:Props) => {
     const username = e.target.username.value;
     const bio = e.target.bio.value;
     const file = filePickerRef.current.files[0];    
-    const usernameTaken = await checkIfUsernameExists(username);
+    // try{
+    //   const usernameTaken = await checkIfUsernameExists(username);
+    // } catch(err){
+    //   console.error(err);
+    // }
     if(!file) {
       setError([...error,"Please Choose a profile picture"])
     }
     if(!username && !bio){
       setError([...error,"Please fill all fields"])
     } 
-    if(usernameTaken) {
-      setError([...error,"Username already taken !!"])
-    }
-    if(username && !usernameTaken && bio && file){
+    // if(usernameTaken) {
+    //   setError([...error,"Username already taken !!"])
+    // }
+    if(username && bio && file){
       try{
       // Create Stream in Livepeer -- get streamId,streamKey
       const streamObject:any = await livepeerApi.createStream(username);
@@ -65,9 +69,9 @@ const profile = (props:Props) => {
       toast("Creating Profile...")
       await addProfile(username,bio,pfpUri,streamObject.data.id,streamObject.data.streamKey)
       toast.success("Profile Created Successfully..")
+      setMinting(false);
       router.push('/');
       router.reload();
-      setMinting(false);
     } catch(err) {
       console.error(err);
       toast.error(err.message);
@@ -115,7 +119,8 @@ const profile = (props:Props) => {
   }
 
   const closeModal = () => {
-    router.back();
+    
+    router.push('/');
   }
 
   return (

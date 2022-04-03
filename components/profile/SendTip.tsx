@@ -3,7 +3,7 @@ import React, { Fragment } from "react";
 import { ethers, providers } from "ethers";
 import GiftIcon from "@heroicons/react/outline/GiftIcon";
 import XIcon from "@heroicons/react/outline/XIcon";
-import useSuperstreamContract from "../hooks/useSuperstreamContract";
+import useSuperstreamContract from "../../hooks/useSuperstreamContract";
 
 type Props = {
   isOpen: boolean;
