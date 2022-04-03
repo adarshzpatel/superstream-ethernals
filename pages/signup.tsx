@@ -70,8 +70,8 @@ const profile = (props:Props) => {
       await addProfile(username,bio,pfpUri,streamObject.data.id,streamObject.data.streamKey)
       toast.success("Profile Created Successfully..")
       setMinting(false);
-      router.push('/');
       router.reload();
+      router.push('/dashboard');
     } catch(err) {
       console.error(err);
       toast.error(err.message);

@@ -7,6 +7,7 @@ import {
   HomeIcon,
   MusicNoteIcon,
   PuzzleIcon,
+  UploadIcon,
   UserIcon,
   VideoCameraIcon,
 } from "@heroicons/react/outline";
@@ -44,6 +45,11 @@ const Sidebar = (props: Props) => {
       href: `/u/${currentUser?.profile?.username}`,
       icon: UserIcon,
     },
+    {
+      name: "Upload Video",
+      href: `/upload`,
+      icon: UploadIcon
+    }
   ];
   
   return (
