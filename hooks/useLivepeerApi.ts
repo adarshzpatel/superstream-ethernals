@@ -33,23 +33,21 @@ export const PROFILES = [
 ];
 
 const useLivpeerApi = () => {
-  const apiKey = process.env.NEXT_PUBLIC_LIVEPEER_API_KEY;
+
   const headers = {
     headers: {
       "content-type": "application/json",
-      authorization: `Bearer ${apiKey}`,
+      authorization : `Bearer ${process.env.NEXT_PUBLIC_LIVEPEER_API_KEY}`,
     },
   };
 
   const createStream = async (name: string): Promise<object> => {
     try {
-      const url = "https://livepeer.com/api/stream";
+      const url = "/api/stream";
       const data = {
         name: name,
         profiles: PROFILES,
-        record: true,
       };
-    
       return await axios.post(url, data, headers);
     } catch (err) {
       console.error(err);    
@@ -58,7 +56,7 @@ const useLivpeerApi = () => {
 
   const fetchStreamStatus = async (streamId: string): Promise<object> => {
     try{
-      const url = `https://livepeer.com/api/stream/${streamId}`;
+      const url = `/api/stream/${streamId}`;
       const response = await axios.get(url, headers);
       return response?.data;
     } catch(err) {
@@ -68,9 +66,14 @@ const useLivpeerApi = () => {
 
   const getSessionsList = async (parentId: string): Promise<any> => {
     try{
-      const url = `https://livepeer.com/api/stream/${parentId}/sessions?record=1`
+      let data =[];
+      const url = `/api/sessions/${parentId}`
       const response = await axios.get(url,headers);
-      return response?.data;
+      for(const key in response?.data){
+        data[key] = response?.data[key];
+      }
+      console.log(data);
+      return data;
     } catch(err) {
       console.error(err);
     }
@@ -78,7 +81,7 @@ const useLivpeerApi = () => {
 
   const getSession = async (id: string | string[]): Promise<any> => {
     try{
-      const url = `https://livepeer.com/api/session/${id}`;
+      const url = `/api/session/${id.toString()}`;
       const response = await axios.get(url,headers);
       return response?.data;
     } catch(err) {
