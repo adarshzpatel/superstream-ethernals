@@ -71,7 +71,6 @@ const profile = (props:Props) => {
       toast.success("Profile Created Successfully..")
       setMinting(false);
       router.push('/dashboard');
-      router.reload();
     } catch(err) {
       console.error(err);
       toast.error(err.message);
