@@ -37,7 +37,7 @@ const useLivpeerApi = () => {
   const headers = {
     headers: {
       "content-type": "application/json",
-      authorization: `Bearer ${apiKey}`,
+      authorization: `Bearer e4176e35-6311-4e02-b84b-6ff910caaf25`,
     },
   };
 
