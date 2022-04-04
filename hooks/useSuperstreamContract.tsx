@@ -18,7 +18,7 @@ export type SessionData = {
 
 export type Comment = {
   createdAt: number;
-  topic: string; // topic will be video id for published videos & username for livechat
+  topic: string; // topic will be video id for published videos & username for livech
   message: string;
   senderUsername: string;
   senderAddress: string;

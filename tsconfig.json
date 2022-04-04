@@ -23,7 +23,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "pages/api/stream/[streamId].js", "pages/api/stream/index.js"  ],
   "exclude": [
     "node_modules"
   ]
