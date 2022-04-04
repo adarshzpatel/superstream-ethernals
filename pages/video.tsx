@@ -13,6 +13,7 @@ import Link from "next/link";
 import { NextRouter, useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useRecoilValue } from "recoil";
 import Avatar from "../components/profile/Avatar";
 import ProfileInfo from "../components/profile/ProfileInfo";
 import SendTip from "../components/profile/SendTip";
@@ -21,7 +22,6 @@ import Videojs from "../components/video-players/Videojs";
 import CommentSection from "../components/video/CommentSection";
 import { STREAM_NFT_ADDRESS } from "../constants";
 import useSuperstreamContract from "../hooks/useSuperstreamContract";
-import useVideos from "../hooks/useVideos";
 import { Profile } from "../recoil/states";
 
 type Props = {};
@@ -30,7 +30,6 @@ const video: NextPage = (props: Props) => {
   const router: NextRouter = useRouter();
   const signer = useSigner();
   const id = router.query.id;
-  const { videos } = useVideos();
   const [currentVideo, setCurrentVideo] = useState<any>({});
   const [videoExist, setVideoExist] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -144,9 +143,8 @@ const video: NextPage = (props: Props) => {
           </h6>
         <p className="text-gray-400 mb-4">
           {currentVideo?.metadata?.description}
-          {/* {" "}
-            <EyeIcon className="h-5 w-5" /> 0 Views |{" "}
-            <ThumbUpIcon className="h-5 w-5" /> 0 Likes */}
+          <br></br>
+         <span className="fony-medium italic"> Uploaded on : {moment.unix(currentVideo?.metadata?.created_at).format("LLL")}</span>
         </p>
         <div className="max-w-min">
         <a

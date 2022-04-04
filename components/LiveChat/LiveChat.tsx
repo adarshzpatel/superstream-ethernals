@@ -29,7 +29,7 @@ const LiveChat = (props: Props) => {
     superstream.contract.on(commentFilter,callback)
     
     return () =>{
-      superstream.contract.removeListener("CommentAdded",callback);
+      superstream.contract.removeAllListeners();
     }
   },[superstream]) 
   useEffect(()=>{

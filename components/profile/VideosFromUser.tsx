@@ -1,11 +1,15 @@
+import { useAddress } from '@thirdweb-dev/react';
+import Link from 'next/link';
 import React from 'react'
 
-type Props = {}
+type Props = {
+  user:string
+}
 
 const VideosFromUser = (props: Props) => {
-  // const videos = 
+
   return (
-    <div>VideosFromUser</div>
+    <div>Under Developement</div>
   )
   
 }

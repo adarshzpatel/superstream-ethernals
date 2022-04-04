@@ -80,7 +80,9 @@ const upload= (props: Props) => {
       const tokenId = await mintStream(title, description);
       await superstream.addStream(tokenId,'',isSubscribersOnly).then(()=>{
         toast.success("Stream NFT Minted successfully");
+        router.push('video?id='+tokenId.toString());
       });
+
     }
     setMinting(false);
   };
@@ -104,7 +106,7 @@ const upload= (props: Props) => {
           description,
           image: "ipfs://" + thumbnail,
           animation_url:"ipfs://" + videoCid ,
-          created_at: Math.floor(new Date('2012.08.10').getTime() / 1000),
+          created_at: Math.floor(new Date().getTime() / 1000).toString(),
           creator: currentUser.profile.username,
           properties: {
             category: category.name,
@@ -118,12 +120,12 @@ const upload= (props: Props) => {
           metadata: metadata,
         });
         console.log(response.data);
+        setButtonState("Publishing Video");
         return ethers.BigNumber.from(response.data.tokenId).toNumber();
       
     } catch (err) {
       console.error(err);
     }
-    setButtonState("Publish Video");
   };
 
   const handleVideoChange = () => {

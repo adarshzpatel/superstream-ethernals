@@ -24,7 +24,7 @@ const ProfilePage = (props: Props) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [hasProfile, setHasProfile] = useState<boolean>(false);
   const [stream, setStream] = useState<any>();
-
+  
 
  const checkIfUserHasProfile = async (): Promise<void> => {
     setLoading(true);
@@ -112,7 +112,7 @@ const ProfilePage = (props: Props) => {
                 {profile?.bio}
               </Tab.Panel>
               <Tab.Panel>
-              <VideosFromUser />
+              <VideosFromUser  user={profile?.username}/>
                 </Tab.Panel>
   
             </Tab.Panels>
