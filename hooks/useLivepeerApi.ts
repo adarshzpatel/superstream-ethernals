@@ -33,24 +33,21 @@ export const PROFILES = [
 ];
 
 const useLivpeerApi = () => {
-  const apiKey = process.env.NEXT_PUBLIC_LIVEPEER_API_KEY;
+
   const headers = {
     headers: {
-      "Access-Control-Allow-Origin": "*",
       "content-type": "application/json",
-      "Authorization": `Bearer e4176e35-6311-4e02-b84b-6ff910caaf25`,
+      authorization : `Bearer e4176e35-6311-4e02-b84b-6ff910caaf25`,
     },
   };
 
   const createStream = async (name: string): Promise<object> => {
     try {
-      const url = "https://livepeer.com/api/stream";
+      const url = "/api/stream";
       const data = {
         name: name,
         profiles: PROFILES,
-        record: true,
       };
-    
       return await axios.post(url, data, headers);
     } catch (err) {
       console.error(err);    
@@ -59,7 +56,7 @@ const useLivpeerApi = () => {
 
   const fetchStreamStatus = async (streamId: string): Promise<object> => {
     try{
-      const url = `https://livepeer.com/api/stream/${streamId}`;
+      const url = `/api/stream/${streamId}`;
       const response = await axios.get(url, headers);
       return response?.data;
     } catch(err) {
