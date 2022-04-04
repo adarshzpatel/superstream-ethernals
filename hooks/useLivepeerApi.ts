@@ -36,7 +36,7 @@ const useLivpeerApi = () => {
   const apiKey = process.env.NEXT_PUBLIC_LIVEPEER_API_KEY;
   const headers = {
     headers: {
-      
+      "Access-Control-Allow-Origin": "*",
       "content-type": "application/json",
       "Authorization": `Bearer e4176e35-6311-4e02-b84b-6ff910caaf25`,
     },
