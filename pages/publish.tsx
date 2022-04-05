@@ -113,7 +113,7 @@ const stream = (props: Props) => {
           description,
           image: "ipfs://"+thumbnail,
           animation_url: session.mp4Url,
-          created_at: session.createdAt,
+          created_at: Math.floor(new Date().getTime() / 1000).toString(),
           duration: session.transcodedSegmentsDuration,
           creator: currentUser.profile.username,
           properties: {
