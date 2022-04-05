@@ -11,7 +11,7 @@ type Props = {
 const VideoCard = ({ data }: Props) => {
   const superstream = useSuperstreamContract();
   const [user, setUser] = useState<Profile>();
-  console.log(data);
+ 
   const getUser = async () => {
     if (data?.owner) {
       const res = await superstream.getProfileByUsername(data?.creator)
@@ -23,9 +23,7 @@ const VideoCard = ({ data }: Props) => {
     getUser();
   }, [data]);
 
-  if(!user) {
-    return <></>
-  }
+
   return (
     <div className="w-full">
       {/* VideoCard */}

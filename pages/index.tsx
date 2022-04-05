@@ -1,8 +1,12 @@
 import { ChipIcon, FilmIcon, MusicNoteIcon } from "@heroicons/react/outline";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import VideoCard from "../components/VideoCard";
-import useVideos from "../hooks/useVideos";
+import {useNFTCollection} from '@thirdweb-dev/react'
+import { STREAM_NFT_ADDRESS } from "../constants";
+import video from "./video";
+import Loading from "../components/Loading";
+import Spinner from "../components/Spinner";
 const GameIcon = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" {...props} viewBox="0 0 512 512">
     <title>Game Controller</title>
@@ -31,8 +35,37 @@ const GameIcon = (props) => (
   </svg>
 );
 const Home = () => {
- const {videos} = useVideos();
+  const streamNft = useNFTCollection(STREAM_NFT_ADDRESS);
+  const [videos, setVideos] = useState<any>([]);
+  const [loading,setLoading] = useState<boolean>();
+  
+  const getAllVideos = async () => {
+    setLoading(true);
+    const res = await streamNft.getAll();
+    res.forEach((item) => {
+      setVideos((videos) => [
+        ...videos,
+        {
+          title: item?.metadata?.name,
+          description: item?.metadata?.description,
+          id: item?.metadata?.id,
+          creator: item?.metadata?.creator,
+          owner: item?.owner,
+          createdAt: item?.metadata?.created_at,
+          animationUrl: item?.metadata?.animation_url,
+          thumbnail: item?.metadata?.image,
+          duration: item?.metadata?.duration,
+          category: item?.metadata?.properties?.category,
+          tags: item?.metadata?.properties?.tags,
+        },
+      ]);
+    });
+    setLoading(false)
+  };
 
+  useEffect(()=>{
+    getAllVideos();
+},[])
   return (
     <div className="">
       <div className=" flex  p-8  ease-out duration-500 items-center w-full bg-gradient-to-br rounded-2xl from-violet-800 via-purple-600  to-fuchsia-400">
@@ -50,38 +83,45 @@ const Home = () => {
             <p> 📢 Publish / Mint Stream NFT </p>
             <p> ✨ Follow your favorite streamers </p>
             <p> 💰 Receive Tips </p>
-            <p> 🎫 Subscriptions   </p>
+            <p> 🎫 Subscriptions </p>
             <p> 📨 Super Chat ( Coming soon !) </p>
           </div>
         </div>
       </div>
       <div className="my-4 flex  gap-4">
-        <Link href=''>
-        <div className="bg-purple-600 hover:bg-purple-500 duration-200 flex group cursor-pointer items-center gap-3 px-6 py-2 rounded-lg  max-w-fit font-display text-2xl font-medium">
-          Gaming <GameIcon className="h-8 w-8 rotate-12 group-hover:scale-110 duration-200"/>
-        </div>
+        <Link href="">
+          <div className="bg-purple-600 hover:bg-purple-500 duration-200 flex group cursor-pointer items-center gap-3 px-6 py-2 rounded-lg  max-w-fit font-display text-2xl font-medium">
+            Gaming{" "}
+            <GameIcon className="h-8 w-8 rotate-12 group-hover:scale-110 duration-200" />
+          </div>
         </Link>
-        <Link href=''>
-        <div className="bg-green-500 hover:bg-lime-500   duration-200 flex group cursor-pointer items-center gap-3 px-6 py-2 rounded-lg  max-w-fit font-display text-2xl font-medium">
-          Entertainment <FilmIcon className="h-8 w-8 rotate-12 group-hover:scale-110 duration-200"/>
-        </div>
+        <Link href="">
+          <div className="bg-green-500 hover:bg-lime-500   duration-200 flex group cursor-pointer items-center gap-3 px-6 py-2 rounded-lg  max-w-fit font-display text-2xl font-medium">
+            Entertainment{" "}
+            <FilmIcon className="h-8 w-8 rotate-12 group-hover:scale-110 duration-200" />
+          </div>
         </Link>
-        <Link href=''>
-        <div className="bg-pink-600 hover:bg-pink-500  duration-200 flex group cursor-pointer items-center gap-3 px-6 py-2 rounded-lg  max-w-fit font-display text-2xl font-medium">
-          Music <MusicNoteIcon className="h-8 w-8 rotate-12 group-hover:scale-110 duration-200"/>
-        </div>
+        <Link href="">
+          <div className="bg-pink-600 hover:bg-pink-500  duration-200 flex group cursor-pointer items-center gap-3 px-6 py-2 rounded-lg  max-w-fit font-display text-2xl font-medium">
+            Music{" "}
+            <MusicNoteIcon className="h-8 w-8 rotate-12 group-hover:scale-110 duration-200" />
+          </div>
         </Link>
-        <Link href=''>
-        <div className="bg-cyan-600 hover:bg-cyan-500 duration-200 flex group cursor-pointer items-center gap-3 px-6 py-2 rounded-lg  max-w-fit font-display text-2xl font-medium">
-          Technology <ChipIcon className="h-8 w-8 rotate-12 group-hover:scale-110 duration-200"/>
-        </div>
+        <Link href="">
+          <div className="bg-cyan-600 hover:bg-cyan-500 duration-200 flex group cursor-pointer items-center gap-3 px-6 py-2 rounded-lg  max-w-fit font-display text-2xl font-medium">
+            Technology{" "}
+            <ChipIcon className="h-8 w-8 rotate-12 group-hover:scale-110 duration-200" />
+          </div>
         </Link>
       </div>
-      <h1 className="text-2xl mb font-medium text-grap-200 mb-4">Trending Videos </h1>
+      <h1 className="text-2xl mb font-medium text-grap-200 mb-4">
+        Trending Videos{" "}
+      </h1>
       <div className="gap-4 grid sm:grid-cols-2 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 ">
-          {videos?.map((item) => (
-            <VideoCard key={item.id} data={item}/>
-          ))}
+        {!loading && videos?.map((item) => (
+          <VideoCard key={item.id} data={item} />
+        ))}
+        {loading && "Loading Videos...."}
       </div>
     </div>
   );

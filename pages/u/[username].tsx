@@ -12,6 +12,7 @@ import { Tab } from "@headlessui/react";
 import { Profile } from "../../recoil/states";
 import Copyable from "../../components/Copyable";
 import { parseAddress } from "../../components/layout/UserMenu";
+import MyVideos from "../../components/layout/MyVideos";
 
 type Props = {};
 
@@ -112,8 +113,8 @@ const ProfilePage = (props: Props) => {
                 {profile?.bio}
               </Tab.Panel>
               <Tab.Panel>
-              <VideosFromUser  user={profile?.username}/>
-                </Tab.Panel>
+            <MyVideos address={profile?.owner}/> 
+                </Tab.Panel>p
   
             </Tab.Panels>
           </Tab.Group>

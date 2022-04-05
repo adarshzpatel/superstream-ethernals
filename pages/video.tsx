@@ -14,6 +14,7 @@ import { NextRouter, useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useRecoilValue } from "recoil";
+import SuggestedVideos from "../components/layout/SuggestedVideos";
 import Avatar from "../components/profile/Avatar";
 import ProfileInfo from "../components/profile/ProfileInfo";
 import SendTip from "../components/profile/SendTip";
@@ -169,28 +170,7 @@ const video: NextPage = (props: Props) => {
         </h6>
 
         <div className="flex flex-col gap-2 p-2">
-          {/* {videos?.map((item) => (
-            <Link key={item?.id} href={`/video?id=${item?.id}`}>
-              <div className="flex gap-2 cursor-pointer rounded-md hover:p-2 hover:scale-105 hover:bg-slate-800 duration-200 ease-out">
-                <div className="h-28  aspect-video bg-gray-500 animate-pulse rounded-md overflow-hidden">
-                  <img
-                    className="object-cover object-center"
-                    src={item?.thumbnail}
-                    alt=""
-                  />
-                </div>
-                <div>
-                  <h1 className="text-lg font-medium cursor-pointer hover:text-violet-400  ">
-                    {item?.title}
-                  </h1>
-                  <p>{item?.creator}</p>
-                  <p className="text-sm text-gray-400">
-                    {moment(new Date(item?.createdAt)).fromNow()}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))} */}
+        <SuggestedVideos id={id} />
         </div>
       </div>
     </div>
