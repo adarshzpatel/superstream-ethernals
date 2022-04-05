@@ -8,9 +8,6 @@ import Header from "./Header";
 
 import Sidebar from "./Sidebar";
 
-type Props = {
-  children: React.ReactNode;
-};
 
 const Layout = ({ children }: Props) => {
   const [currentUser, setCurrentUser] = useRecoilState(currentUserState);

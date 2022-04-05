@@ -8,6 +8,8 @@ import { NextRouter, useRouter } from "next/router";
 import Spinner from "../components/Spinner";
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/outline";
+import { useRecoilState } from "recoil";
+import { currentUserState } from "../recoil/states";
 
 type Props = {
   web3storageToken:string
@@ -35,7 +37,8 @@ const profile = (props:Props) => {
   const livepeerApi = useLivpeerApi();
   const {storeFile} = useWeb3Storage();
   const [error,setError] = useState<string[]>([]);
- 
+  const [currentUser, setCurrentUser] = useRecoilState(currentUserState);
+  const superstream = useSuperstreamContract();
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMinting(true);
@@ -70,6 +73,7 @@ const profile = (props:Props) => {
       await addProfile(username,bio,pfpUri,streamObject.data.id,streamObject.data.streamKey)
       toast.success("Profile Created Successfully..")
       setMinting(false);
+      checkIfUserHasProfile();
       router.push('/dashboard');
     } catch(err) {
       console.error(err);
@@ -79,6 +83,22 @@ const profile = (props:Props) => {
   setMinting(false)
   };
   
+  
+  const checkIfUserHasProfile = async () => {
+    setCurrentUser({ ...currentUser, loading: true });
+    console.log("Checking...");
+    const _profile: any = await superstream.getProfileByAddress();
+    if (_profile?.username) {
+      setCurrentUser({
+        ...currentUser,
+        hasProfile: true,
+        loading: false,
+        profile: _profile,
+      });
+    } else {
+      setCurrentUser({ ...currentUser, hasProfile: false, loading: false });
+    }
+  };
 
 
 
