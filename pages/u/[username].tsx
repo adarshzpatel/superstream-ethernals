@@ -7,7 +7,6 @@ import useSuperstreamContract from "../../hooks/useSuperstreamContract";
 import useLivpeerApi from "../../hooks/useLivepeerApi";
 import Videojs from "../../components/video-players/Videojs";
 import Spinner from "../../components/Spinner";
-import VideosFromUser from "../../components/profile/VideosFromUser";
 import { Tab } from "@headlessui/react";
 import { Profile } from "../../recoil/states";
 import Copyable from "../../components/Copyable";

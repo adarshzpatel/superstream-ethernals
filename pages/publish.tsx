@@ -95,14 +95,14 @@ const stream = (props: Props) => {
     if(title && description && currentAccount && thumbnail ){
       toast("Minting stream Nft");
       const tokenId = await mintStream(title,description);
-      await superstream.addStream(tokenId,session.id,isSubscribersOnly);
+      // await superstream.addStream(tokenId,session.id,isSubscribersOnly);
       toast.success("Stream NFT Minted successfully");
       router.push("/dashboard")
     }
     setMinting(false);
   };
 
-  const mintStream = async (name: string, description: string):Promise<number> => {
+  const mintStream = async (name: string, description: string) => {
     try {
       if (session) {
         toast("Uploading thumbnail to ipfs");
@@ -121,13 +121,14 @@ const stream = (props: Props) => {
             tags: tags
           },
         };
+
         console.log(metadata);
         const response = await axios.post('/api/mint/stream',{
           address:currentAccount,
           metadata:metadata
         })
         console.log(response.data);
-        return ethers.BigNumber.from(response.data.tokenId).toNumber();
+        // return ethers.BigNumber.from(response.data.tokenId).toNumber();
       }
     } catch (err) {
       console.error(err);

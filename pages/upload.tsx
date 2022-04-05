@@ -78,10 +78,10 @@ const upload= (props: Props) => {
     if (title && description && currentAccount && thumbnail) {
       toast("Minting stream Nft");
       const tokenId = await mintStream(title, description);
-      await superstream.addStream(tokenId,'',isSubscribersOnly).then(()=>{
-        toast.success("Stream NFT Minted successfully");
-        router.push('video?id='+tokenId.toString());
-      });
+      // await superstream.addStream(tokenId,'',isSubscribersOnly).then(()=>{
+      // });
+      router.push('/');
+      toast.success("Stream NFT Minted successfully");
 
     }
     setMinting(false);
@@ -90,7 +90,7 @@ const upload= (props: Props) => {
   const mintStream = async (
     name: string,
     description: string
-  ): Promise<number> => {
+  ) => {
     try {
         setButtonState("Uploading Video...")
         toast("Uploading video to ipfs");
@@ -121,7 +121,7 @@ const upload= (props: Props) => {
         });
         console.log(response.data);
         setButtonState("Publishing Video");
-        return ethers.BigNumber.from(response.data.tokenId).toNumber();
+        // return ethers.BigNumber.from(response.data.tokenId).toNumber();
       
     } catch (err) {
       console.error(err);
